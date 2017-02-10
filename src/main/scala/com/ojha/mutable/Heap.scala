@@ -9,9 +9,7 @@ object Heap {
 
 class Heap[T] {
 
-
-
-private val backing = mutable.ArrayBuffer.empty[T]
+  private val backing = mutable.ArrayBuffer.empty[T]
 
   /**
     * Insert an item into the heap
@@ -128,25 +126,12 @@ private val backing = mutable.ArrayBuffer.empty[T]
     val heapSize = backing.length
 
     if (ord.equiv(value, backing(index))) Some(index)
-
-    else if (leftChildIndex < heapSize) {
-      val leftValue = backing(leftChildIndex)
-      if (ord.equiv(leftValue, value)) Some(leftChildIndex)
-      else if (ord.gt(leftValue, value)) {
-        find(value, leftChildIndex) match {
-          case Some(found) => Some(found)
-          case None => {
-            if (rightChildIndex < heapSize) {
-              if (ord.equiv(backing(rightChildIndex), value)) Some(rightChildIndex)
-              else if (ord.gt(backing(rightChildIndex), value)) find(value, rightChildIndex)
-              else None
-            }
-            else None
-          }
-        }
+    else if (leftChildIndex < heapSize && ord.gteq(backing(leftChildIndex), value)) {
+        find(value, leftChildIndex).orElse(
+          if (rightChildIndex < heapSize && ord.gteq(backing(rightChildIndex), value)) find(value ,rightChildIndex)
+          else None
+        )
       }
-      else None
-    }
     else None
   }
 
@@ -154,7 +139,7 @@ private val backing = mutable.ArrayBuffer.empty[T]
     * Finds index of value in heap, bubbles to top using synthetic ordering then popsTop
     *
     * @param value toDelete
-    * @param ord natural ordering of elements in heap
+    * @param ord   natural ordering of elements in heap
     * @return
     */
   def deleteValue(value: T)(implicit ord: Ordering[T]) = {
@@ -164,7 +149,7 @@ private val backing = mutable.ArrayBuffer.empty[T]
       override def compare(x: T, y: T): Int = {
         if (ord.equiv(x, value)) 1
         else if (ord.equiv(y, value)) -1
-        else ord.compare(x,y)
+        else ord.compare(x, y)
       }
     }
 
@@ -175,7 +160,7 @@ private val backing = mutable.ArrayBuffer.empty[T]
       }
       case None =>
     }
-  } 
+  }
 
 
 }
