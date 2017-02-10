@@ -44,6 +44,28 @@ class HeapSuite extends FlatSpec with Matchers {
     sut.top should be(2)
   }
 
+  it should "delete by value" in {
+    val sut = new Heap[Int]
+    sut.insert(2)
+    sut.insert(7)
+    sut.insert(4)
+    sut.insert(3)
+    sut.deleteValue(7)
+    sut.top should be(4)
+  }
+
+  it should "delete multiple by value" in {
+    val sut = new Heap[Int]
+    sut.insert(2)
+    sut.insert(7)
+    sut.insert(4)
+    sut.insert(3)
+    sut.deleteValue(7)
+    sut.deleteValue(4)
+    sut.deleteValue(3)
+    sut.top should be(2)
+  }
+
   it should "remove top" in {
     val sut = new Heap[Int]
     sut.insert(2)
