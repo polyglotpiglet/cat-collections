@@ -2,28 +2,18 @@ package com.ojha.mutable.graphs
 
 import scala.collection.mutable
 
-object Graph {
-
-  def apply[T](): Graph[T] = new Graph[T]
-
-  def apply[T](nodes: Node[T]*): Graph[T] = {
-    val graph = new Graph[T]
-    graph.addNodes(nodes)
-    graph
-  }
-}
-class Graph[T] {
+trait Graph[T] {
 
 
   /**
     * Store a map of Node to its outgoing edges
     */
-  private val adjacencyList = mutable.Map.empty[Node[T], Seq[UnidirectionalEdge[T]]]
+  protected val adjacencyList = mutable.Map.empty[Node[T], Seq[UnidirectionalEdge[T]]]
 
   /**
     * Also maintian a list of edges
     */
-  private val edges = mutable.Seq.empty[UnidirectionalEdge[T]]
+  protected val edges = mutable.Seq.empty[UnidirectionalEdge[T]]
 
   /**
     * Bulk add nodes to the graph
@@ -39,39 +29,13 @@ class Graph[T] {
     */
   def addNode(node: Node[T]) = adjacencyList(node) = mutable.Seq.empty[UnidirectionalEdge[T]]
 
+
   /**
-    * Bulk add unidirectional edges
-    *
     * @param edgeDefinitions
     */
-  def addDirectedEdges(edgeDefinitions: (Node[T], Node[T])*) = edgeDefinitions foreach addDirectedEdge
+  def addEdges(edgeDefinitions: (Node[T], Node[T])*) = edgeDefinitions foreach addEdge
 
-  /**
-    * Add one unidirectional edge
-    *
-    * @param fromToPair
-    */
-  def addDirectedEdge(fromToPair: (Node[T], Node[T]) ) = {
-    val edge = UnidirectionalEdge(fromToPair._1, fromToPair._2)
-    edge +: edges
-    adjacencyList(fromToPair._1) = edge +: adjacencyList(fromToPair._1)
-  }
-
-  /**
-    * Bulk add unidirectional edges
-    *
-    * @param edgeDefinitions
-    */
-  def addUndirectedEdges(edgeDefinitions: (Node[T], Node[T])*) = edgeDefinitions foreach addUndirectedEdge
-
-  def addUndirectedEdge(pair: (Node[T], Node[T]) ) = {
-    val first = UnidirectionalEdge(pair._1, pair._2)
-    val second = UnidirectionalEdge(pair._2, pair._1)
-    first +: edges
-    second +: edges
-    adjacencyList(pair._1) = first +: adjacencyList(pair._1)
-    adjacencyList(pair._2) = second +: adjacencyList(pair._2)
-  }
+  def addEdge(pair: (Node[T], Node[T])): Unit
 
   /**
     * @param node
@@ -116,6 +80,8 @@ class Graph[T] {
     }
     aux()
   }
+
+//  def topologicalSort
 }
 
 
