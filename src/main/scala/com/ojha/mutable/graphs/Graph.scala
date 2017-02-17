@@ -66,21 +66,15 @@ trait Graph[T] {
     * @param start
     * @return depth first search from start
     */
-  def dfs(start: Node[T]): Set[Node[T]] = {
-    val stack = mutable.ArrayBuffer(start)
-
-    def aux(visited: Set[Node[T]] = Set.empty): Set[Node[T]] = {
-      if (stack.isEmpty) visited
-      else {
-        val node = stack.remove(0)
-        adjacencyList(node).map(_.to).filter(!visited.contains(_)).foreach(stack.insert(stack.length, _))
-        aux(visited + node)
-      }
+  def dfs(start: Node[T]): List[Node[T]] = {
+    def aux(stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = stack match {
+      case Nil => visited
+      case node :: rest if visited.contains(node) => aux(rest, visited)
+      case node :: rest => aux(adjacencyList(node).map(_.to).filterNot(visited.contains(_)).toList ++ rest, node +: visited)
     }
-    aux()
+    aux(List(start)).reverse
   }
 
-//  def topologicalSort
 }
 
 

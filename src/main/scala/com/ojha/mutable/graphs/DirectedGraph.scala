@@ -25,11 +25,18 @@ class DirectedGraph[T] extends Graph[T] {
     adjacencyList(fromToPair._1) = edge +: adjacencyList(fromToPair._1)
   }
 
-  def topologicalSort: Set[Node[T]] = {
-    null
+  def topologicalSort: List[Node[T]] = {
+    var visited = List.empty[Node[T]]
+    adjacencyList.keySet.foreach(k => {
+      if (!visited.contains(k)) {
+        visited = dfs(k).filterNot(visited.contains) ++ visited
+        println(visited.mkString(" "))
+      }
+    })
+    visited
   }
 
-  def isTopologicalSort(sort: Set[Node[T]]): Boolean = {
+  def isTopologicalSort(sort: List[Node[T]]): Boolean = {
     val indexedSort = sort.zipWithIndex.toMap
     sort.forall(node => indexedSort.contains(node) &&
       adjacencyList(node).forall(edge => indexedSort.contains(edge.to) &&

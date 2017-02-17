@@ -70,7 +70,7 @@ class UndirectedGraphSuite extends FlatSpec with Matchers {
       (c, e),
       (d, e))
 
-    graph.dfs(s) should equal(Set(s, a, c, e, d, b))
+    graph.dfs(s) should equal(List(s, b, d, e, c, a))
   }
 
 }
