@@ -4,7 +4,6 @@ import scala.collection.mutable
 
 trait Graph[T] {
 
-
   /**
     * Store a map of Node to its outgoing edges
     */

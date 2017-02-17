@@ -73,4 +73,22 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.dfs(s) should equal(Set(s, a, c, e, d, b))
   }
 
+  it should "verify topological sort for graph" in {
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+
+    val graph = DirectedGraph(a,b,c,d)
+    graph addEdges((a, b),
+      (a, c),
+      (b, d),
+      (c, d))
+
+    graph.isTopologicalSort(Set(a,b,c,d)) should be(true)
+    graph.isTopologicalSort(Set(a,c,b,d)) should be(true)
+    graph.isTopologicalSort(Set(a,b,c)) should be(false)
+    graph.isTopologicalSort(Set(c,a,d,b)) should be(false)
+  }
+
 }

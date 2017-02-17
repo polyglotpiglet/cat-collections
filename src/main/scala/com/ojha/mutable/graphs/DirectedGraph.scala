@@ -25,4 +25,15 @@ class DirectedGraph[T] extends Graph[T] {
     adjacencyList(fromToPair._1) = edge +: adjacencyList(fromToPair._1)
   }
 
+  def topologicalSort: Set[Node[T]] = {
+    null
+  }
+
+  def isTopologicalSort(sort: Set[Node[T]]): Boolean = {
+    val indexedSort = sort.zipWithIndex.toMap
+    sort.forall(node => indexedSort.contains(node) &&
+      adjacencyList(node).forall(edge => indexedSort.contains(edge.to) &&
+                                         indexedSort(edge.to) > indexedSort(node)))
+  }
+
 }
