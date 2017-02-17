@@ -81,7 +81,7 @@ class Graph[T] {
 
   /**
     * @param start
-    * @return bfs from start
+    * @return breadth first search from start
     */
   def bfs(start: Node[T]): Set[Node[T]] = {
     val q = new mutable.Queue[Node[T]]()
@@ -96,6 +96,24 @@ class Graph[T] {
       }
     }
 
+    aux()
+  }
+
+  /**
+    * @param start
+    * @return depth first search from start
+    */
+  def dfs(start: Node[T]): Set[Node[T]] = {
+    val stack = mutable.ArrayBuffer(start)
+
+    def aux(visited: Set[Node[T]] = Set.empty): Set[Node[T]] = {
+      if (stack.isEmpty) visited
+      else {
+        val node = stack.remove(0)
+        adjacencyList(node).map(_.to).filter(!visited.contains(_)).foreach(stack.insert(stack.length, _))
+        aux(visited + node)
+      }
+    }
     aux()
   }
 }

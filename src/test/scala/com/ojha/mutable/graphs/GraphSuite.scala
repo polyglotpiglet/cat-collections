@@ -101,4 +101,25 @@ class GraphSuite extends FlatSpec with Matchers {
     graph.bfs(s) should equal(Set(s, a, b, c, d, e))
   }
 
+  it should "do dfs for undirected edges" in {
+    val s = Node("s")
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+
+    val graph = Graph(s,a,b,c,d,e)
+    graph addUndirectedEdges((s, a),
+      (s, b),
+      (a, c),
+      (b, c),
+      (b, d),
+      (c, d),
+      (c, e),
+      (d, e))
+
+    graph.dfs(s) should equal(Set(s, a, c, e, d, b))
+  }
+
 }
