@@ -25,17 +25,20 @@ class DirectedGraph[T] extends Graph[T] {
     adjacencyList(fromToPair._1) = edge +: adjacencyList(fromToPair._1)
   }
 
+  /**
+    * A topological sort for a directed acyclic graph is a ordered list of nodes
+    * such that for every edge, u -> v, in the graph u comes before v in the ordering
+    * @return nodes in topological sort order
+    */
   def topologicalSort: List[Node[T]] = {
-    var visited = List.empty[Node[T]]
-    adjacencyList.keySet.foreach(k => {
-      if (!visited.contains(k)) {
-        visited = dfs(k).filterNot(visited.contains) ++ visited
-        println(visited.mkString(" "))
-      }
-    })
-    visited
+    adjacencyList.keySet
+      .foldLeft(List.empty[Node[T]])((acc, next) => dfs(next).filterNot(acc.contains) ++ acc)
   }
 
+  /**
+    * @param sort
+    * @return true if the list is a valid topological sort for the graph
+    */
   def isTopologicalSort(sort: List[Node[T]]): Boolean = {
     val indexedSort = sort.zipWithIndex.toMap
     sort.forall(node => indexedSort.contains(node) &&

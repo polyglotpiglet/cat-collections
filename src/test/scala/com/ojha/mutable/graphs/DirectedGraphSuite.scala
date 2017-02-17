@@ -91,7 +91,6 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.isTopologicalSort(List(c,a,d,b)) should be(false)
   }
 
-
   it should "generate topological sort for graph" in {
     val a = Node("a")
     val b = Node("b")
@@ -106,8 +105,22 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
     val topSort = graph.topologicalSort
     graph.isTopologicalSort(topSort) should be(true)
+  }
 
+  it should "fail to generate topological sort for directed cyclic graph" in {
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
 
+    val graph = DirectedGraph(a,b,c,d)
+    graph addEdges((a, b),
+      (b, c),
+      (d, d),
+      (d, a))
+
+    val topSort = graph.topologicalSort
+    graph.isTopologicalSort(topSort) should be(false)
   }
 
 }
