@@ -1,6 +1,7 @@
 package com.ojha.mutable.graphs
 
 object UndirectedGraph {
+
   def apply[T](): UndirectedGraph[T] = new UndirectedGraph[T]
 
   def apply[T](nodes: Node[T]*): UndirectedGraph[T] = {
@@ -8,6 +9,7 @@ object UndirectedGraph {
     graph.addNodes(nodes)
     graph
   }
+
 }
 
 class UndirectedGraph[T] extends Graph[T] {
@@ -17,8 +19,8 @@ class UndirectedGraph[T] extends Graph[T] {
     val second = UnidirectionalEdge(pair._2, pair._1)
     first +: edges
     second +: edges
-    adjacencyList(pair._1) = first +: adjacencyList(pair._1)
-    adjacencyList(pair._2) = second +: adjacencyList(pair._2)
+    adjacencyListForOutgoingNodes(pair._1) = first +: adjacencyListForOutgoingNodes(pair._1)
+    adjacencyListForOutgoingNodes(pair._2) = second +: adjacencyListForOutgoingNodes(pair._2)
   }
 
 }

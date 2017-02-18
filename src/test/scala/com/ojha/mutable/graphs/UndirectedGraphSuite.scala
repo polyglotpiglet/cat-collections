@@ -70,7 +70,38 @@ class UndirectedGraphSuite extends FlatSpec with Matchers {
       (c, e),
       (d, e))
 
-    graph.dfs(s) should equal(List(s, b, d, e, c, a))
+    graph.preOrderDfs(s) should equal(List(s, b, d, e, c, a))
   }
+
+//  it should "do postorder dfs" in {
+//
+//    /*           e
+//               ^  ^
+//              /    \
+//    s -> a -> c  -> d
+//      \      ^      ^
+//       v    /      /
+//          b  - - -
+//     */
+//
+//    val s = Node("s")
+//    val a = Node("a")
+//    val b = Node("b")
+//    val c = Node("c")
+//    val d = Node("d")
+//    val e = Node("e")
+//
+//    val graph = UndirectedGraph(s,a,b,c,d,e)
+//    graph addEdges((s, a),
+//      (s, b),
+//      (a, c),
+//      (b, c),
+//      (b, d),
+//      (c, d),
+//      (c, e),
+//      (d, e))
+//
+//    graph.postOrderDfs(s) should equal(List(e, d, c, b, a, s))
+//  }
 
 }

@@ -12,7 +12,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     val d = Node("d")
     val e = Node("e")
 
-    val graph = DirectedGraph(s,a,b,c,d,e)
+    val graph = DirectedGraph(s, a, b, c, d, e)
     graph addEdges((s, a),
       (s, b),
       (a, c),
@@ -22,13 +22,38 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
       (c, e),
       (d, e))
 
-    graph.getOutgoingNodes(s) should contain theSameElementsAs Seq(a,b)
+    graph.getOutgoingNodes(s) should contain theSameElementsAs Seq(a, b)
     graph.getOutgoingNodes(a) should contain theSameElementsAs Seq(c)
-    graph.getOutgoingNodes(b) should contain theSameElementsAs Seq(c,d)
-    graph.getOutgoingNodes(c) should contain theSameElementsAs Seq(e,d)
+    graph.getOutgoingNodes(b) should contain theSameElementsAs Seq(c, d)
+    graph.getOutgoingNodes(c) should contain theSameElementsAs Seq(e, d)
     graph.getOutgoingNodes(d) should contain theSameElementsAs Seq(e)
     graph.getOutgoingNodes(e) should contain theSameElementsAs Seq()
+  }
 
+  it should "correctly return incoming connections for directed edges" in {
+    val s = Node("s")
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+
+    val graph = DirectedGraph(s, a, b, c, d, e)
+    graph addEdges((s, a),
+      (s, b),
+      (a, c),
+      (b, c),
+      (b, d),
+      (c, d),
+      (c, e),
+      (d, e))
+
+    graph.getIncomingNodes(s) should contain theSameElementsAs Seq()
+    graph.getIncomingNodes(a) should contain theSameElementsAs Seq(s)
+    graph.getIncomingNodes(b) should contain theSameElementsAs Seq(s)
+    graph.getIncomingNodes(c) should contain theSameElementsAs Seq(a, b)
+    graph.getIncomingNodes(d) should contain theSameElementsAs Seq(b, c)
+    graph.getIncomingNodes(e) should contain theSameElementsAs Seq(c, d)
   }
 
   it should "do bfs for directed edges" in {
@@ -39,7 +64,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     val d = Node("d")
     val e = Node("e")
 
-    val graph = DirectedGraph(s,a,b,c,d,e)
+    val graph = DirectedGraph(s, a, b, c, d, e)
     graph addEdges((s, a),
       (s, b),
       (a, c),
@@ -52,7 +77,17 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.bfs(s) should equal(Set(s, a, b, c, d, e))
   }
 
-  it should "do dfs for directed edges" in {
+  it should "do preorder dfs for directed edges" in {
+
+    /*           e
+               ^  ^
+              /    \
+    s -> a -> c  -> d
+      \      ^      ^
+       v    /      /
+          b  - - -
+     */
+
     val s = Node("s")
     val a = Node("a")
     val b = Node("b")
@@ -60,7 +95,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     val d = Node("d")
     val e = Node("e")
 
-    val graph = DirectedGraph(s,a,b,c,d,e)
+    val graph = DirectedGraph(s, a, b, c, d, e)
     graph addEdges((s, a),
       (s, b),
       (a, c),
@@ -70,7 +105,78 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
       (c, e),
       (d, e))
 
-    graph.dfs(s) should equal(List(s, b, d, e, c, a))
+    graph.preOrderDfs(s) should equal(List(s, b, d, e, c, a))
+  }
+
+  it should "do postorder for directed edges" in {
+
+    /*           e
+               ^  ^
+              /    \
+    s -> a -> c  -> d
+      \      ^      ^
+       v    /      /
+          b  - - -
+     */
+
+    val s = Node("s")
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+
+    val graph = DirectedGraph(s, a, b, c, d, e)
+    graph addEdges((s, a),
+      (s, b),
+      (a, c),
+      (b, c),
+      (b, d),
+      (c, d),
+      (c, e),
+      (d, e))
+
+    graph.postOrderDfs(s) should equal(List(e, d, c, b, a, s))
+  }
+
+  it should "do dfs where not all nodes are reachable" in {
+
+    /*
+    a   ->  g   ->   i  ->  f    ->    h   ->   e
+     ^     /          ^    /            ^      /
+      \   v            \  v              \    v
+        d                c                  b
+
+     */
+
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+    val f = Node("f")
+    val g = Node("g")
+    val h = Node("h")
+    val i = Node("i")
+
+    val graph = DirectedGraph(a, b, c, d, e, f, g, h, i)
+    graph addEdges(
+      (a, g),
+      (g, d),
+      (d, a),
+      (g, i),
+      (i, f),
+      (f, c),
+      (c, i),
+      (f, h),
+      (h, e),
+      (e, b),
+      (b, h))
+
+    graph.postOrderDfs(h) should equal(Seq(b, e, h))
+    graph.postOrderDfs(i) should equal(Seq(b, e, h, c, f, i))
+    graph.postOrderDfs(a) should equal(Seq(b, e, h, c, f, i, d, g, a))
+
   }
 
   it should "verify topological sort for graph" in {
@@ -79,16 +185,16 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     val c = Node("c")
     val d = Node("d")
 
-    val graph = DirectedGraph(a,b,c,d)
+    val graph = DirectedGraph(a, b, c, d)
     graph addEdges((a, b),
       (a, c),
       (b, d),
       (c, d))
 
-    graph.isTopologicalSort(List(a,b,c,d)) should be(true)
-    graph.isTopologicalSort(List(a,c,b,d)) should be(true)
-    graph.isTopologicalSort(List(a,b,c)) should be(false)
-    graph.isTopologicalSort(List(c,a,d,b)) should be(false)
+    graph.isTopologicalSort(List(a, b, c, d)) should be(true)
+    graph.isTopologicalSort(List(a, c, b, d)) should be(true)
+    graph.isTopologicalSort(List(a, b, c)) should be(false)
+    graph.isTopologicalSort(List(c, a, d, b)) should be(false)
   }
 
   it should "generate topological sort for graph" in {
@@ -97,7 +203,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     val c = Node("c")
     val d = Node("d")
 
-    val graph = DirectedGraph(a,b,c,d)
+    val graph = DirectedGraph(a, b, c, d)
     graph addEdges((a, b),
       (a, c),
       (b, d),
@@ -113,7 +219,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     val c = Node("c")
     val d = Node("d")
 
-    val graph = DirectedGraph(a,b,c,d)
+    val graph = DirectedGraph(a, b, c, d)
     graph addEdges((a, b),
       (b, c),
       (d, d),
@@ -121,6 +227,41 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
     val topSort = graph.topologicalSort
     graph.isTopologicalSort(topSort) should be(false)
+  }
+
+  it should "compute strongly connected components" in {
+
+    /*
+
+    a   ->  g   ->   i  ->  f    ->    h   ->   e
+     ^     /          ^    /            ^      /
+      \   v            \  v              \    v
+        d                c                  b
+
+     */
+
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+    val f = Node("f")
+    val g = Node("g")
+    val h = Node("h")
+    val i = Node("i")
+
+    val graph = DirectedGraph(a, b, c, d, e, f, g, h, i)
+    graph addEdges((a, g), (g, d), (d, a), (g, i), (i, f), (f, c), (c, i), (f, h), (h, e), (e, b), (b, h))
+    graph.reverse()
+
+    val expected = Seq(
+      Seq(b, e, h),
+      Seq(f, i, c),
+      Seq(d, g, a)
+    )
+
+    graph.stronglyConnected should equal(expected)
+
   }
 
 }

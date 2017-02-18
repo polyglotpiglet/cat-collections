@@ -1,13 +1,17 @@
 package com.ojha.mutable.graphs
 
+import sun.security.provider.certpath.AdjacencyList
+
 import scala.collection.mutable
 
 trait Graph[T] {
 
+  type AdjacencyList = mutable.Map[Node[T], Seq[UnidirectionalEdge[T]]]
+
   /**
     * Store a map of Node to its outgoing edges
     */
-  protected val adjacencyList = mutable.Map.empty[Node[T], Seq[UnidirectionalEdge[T]]]
+  protected val adjacencyListForOutgoingNodes: AdjacencyList = mutable.Map.empty
 
   /**
     * Also maintian a list of edges
@@ -26,8 +30,7 @@ trait Graph[T] {
     *
     * @param node
     */
-  def addNode(node: Node[T]) = adjacencyList(node) = mutable.Seq.empty[UnidirectionalEdge[T]]
-
+  def addNode(node: Node[T]) = adjacencyListForOutgoingNodes(node) = mutable.Seq.empty[UnidirectionalEdge[T]]
 
   /**
     * @param edgeDefinitions
@@ -40,7 +43,7 @@ trait Graph[T] {
     * @param node
     * @return list of nodes to which there exists a path of unit length from the input node
     */
-  def getOutgoingNodes(node: Node[T]): Seq[Node[T]] = adjacencyList(node).map(_.to)
+  def getOutgoingNodes(node: Node[T]): Seq[Node[T]] = adjacencyListForOutgoingNodes(node).map(_.to)
 
   /**
     * @param start
@@ -54,7 +57,7 @@ trait Graph[T] {
       if (q.isEmpty) visited
       else {
         val node = q.dequeue()
-        adjacencyList(node).map(_.to).filter(!visited.contains(_)).foreach(q.enqueue(_))
+        adjacencyListForOutgoingNodes(node).map(_.to).filter(!visited.contains(_)).foreach(q.enqueue(_))
         aux(visited + node)
       }
     }
@@ -66,14 +69,39 @@ trait Graph[T] {
     * @param start
     * @return depth first search from start
     */
-  def dfs(start: Node[T]): List[Node[T]] = {
-    def aux(stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = stack match {
-      case Nil => visited
-      case node :: rest if visited.contains(node) => aux(rest, visited)
-      case node :: rest => aux(adjacencyList(node).map(_.to).filterNot(visited.contains(_)).toList ++ rest, node +: visited)
-    }
-    aux(List(start)).reverse
+  def preOrderDfs(start: Node[T]): Seq[Node[T]] = {
+    preOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, List(start))
   }
+
+  def postOrderDfs(start: Node[T]): Seq[Node[T]] = {
+    postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, List(start))
+  }
+
+  protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
+    stack match {
+      case Nil => visited
+      case node :: rest if visited.contains(node) => preOrderDfsForAdjacencyList(adjacencyList, rest, visited)
+      case node :: rest => preOrderDfsForAdjacencyList(adjacencyList,
+        adjacencyList(node).map(_.to).filterNot(visited.contains(_)).toList ++ rest,
+        node +: visited)
+    }
+  }.reverse
+
+
+  protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
+    stack match {
+      case Nil => visited
+      case node :: rest if visited.contains(node) => {
+        postOrderDfsForAdjacencyList(adjacencyList, rest, visited)
+      }
+      case node :: rest  => {
+        val unExploredConnections = adjacencyList(node).map(_.to).filterNot((visited ++ stack).contains).toList
+        if (unExploredConnections.nonEmpty) postOrderDfsForAdjacencyList(adjacencyList, unExploredConnections ++ stack, visited)
+        else postOrderDfsForAdjacencyList(adjacencyList, rest, visited ++ List(node))
+      }
+    }
+  }
+
 
 }
 
