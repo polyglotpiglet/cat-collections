@@ -264,4 +264,38 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
   }
 
+  it should "compute strongly connected components for slightly different graph" in {
+
+    /*
+
+    a   ->  g   ->   i  ->  f    ->    h   ->   e
+     ^     /          ^    /            ^      /
+      \   v            \  v              \    v
+        d      <-        c                  b
+
+     */
+
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+    val f = Node("f")
+    val g = Node("g")
+    val h = Node("h")
+    val i = Node("i")
+
+    val graph = DirectedGraph(a, b, c, d, e, f, g, h, i)
+    graph addEdges((a, g), (g, d), (d, a), (g, i), (i, f), (f, c), (c, i), (f, h), (h, e), (e, b), (b, h), (c, d))
+    graph.reverse()
+
+    val expected = Seq(
+      Seq(b, e, h),
+      Seq(c ,f, i, a, d, g)
+    )
+
+    graph.stronglyConnected should equal(expected)
+
+  }
+
 }
