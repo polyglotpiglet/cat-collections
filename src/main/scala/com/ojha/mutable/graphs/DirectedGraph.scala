@@ -83,16 +83,16 @@ class DirectedGraph[T] extends Graph[T] {
 
   def stronglyConnected: Seq[Seq[Node[T]]] = {
     /*
-     We need to stored things in order so using a Seq but need fast lookup of explored nodes hence the set.
+     We need to store things in order so using a Seq but need fast lookup of explored nodes hence the set.
      Maybe not super efficient for space but the best i can do right now
       */
-
     def doDfs[R](nodes: Seq[Node[T]], partialResultHolder: Seq[R], f: (Seq[Node[T]], Seq[R]) => Seq[R], reverse: Boolean): Seq[R] = {
+      val adjacencyList = if (reverse) adjacencyListForIncomingNodes else adjacencyListForOutgoingNodes
       val start = (Set.empty[Node[T]], partialResultHolder)
       nodes.foldLeft(start) ((acc, next) => {
         val (visited, partialResult) = acc
         if (!visited.contains(next)) {
-          val toAdd: List[Node[T]] = postOrderDfsForAdjacencyList(if (reverse) adjacencyListForIncomingNodes else adjacencyListForOutgoingNodes, List(next)).filterNot(visited.contains)
+          val toAdd = postOrderDfsForAdjacencyList(adjacencyList, List(next)).filterNot(visited.contains)
           (visited ++ toAdd, f(toAdd, partialResult))
         }
         else acc
@@ -100,6 +100,7 @@ class DirectedGraph[T] extends Graph[T] {
     }
 
     val order: Seq[Node[T]] = doDfs(adjacencyListForIncomingNodes.keys.toSeq, Seq.empty[Node[T]], (nodes: Seq[Node[T]], partialResult: Seq[Node[T]]) => partialResult ++ nodes, true)
+    println("got order "  + order.length)
     doDfs(order, Seq.empty[Seq[Node[T]]], (nodes: Seq[Node[T]], partialResult: Seq[Seq[Node[T]]]) => nodes +: partialResult, false)
   }
 

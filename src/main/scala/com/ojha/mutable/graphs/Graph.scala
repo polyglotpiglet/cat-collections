@@ -113,16 +113,16 @@ trait Graph[T] {
 
 
   @tailrec
-  final protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
+  final protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: Set[Node[T]] = Set.empty, partialResult: Seq[Node[T]] = Seq.empty): Seq[Node[T]] = {
     stack match {
-      case Nil => visited
+      case Nil => partialResult.reverse
       case node :: rest if visited.contains(node) => {
-        postOrderDfsForAdjacencyList(adjacencyList, rest, visited)
+        postOrderDfsForAdjacencyList(adjacencyList, rest, visited, partialResult)
       }
       case node :: rest  => {
         val unExploredConnections = adjacencyList(node).map(_.to).filterNot((visited ++ stack).contains).toList
-        if (unExploredConnections.nonEmpty) postOrderDfsForAdjacencyList(adjacencyList, unExploredConnections ++ stack, visited)
-        else postOrderDfsForAdjacencyList(adjacencyList, rest, visited ++ List(node))
+        if (unExploredConnections.nonEmpty) postOrderDfsForAdjacencyList(adjacencyList, unExploredConnections ++ stack, visited, partialResult)
+        else postOrderDfsForAdjacencyList(adjacencyList, rest, visited + node, node +: partialResult)
       }
     }
   }
