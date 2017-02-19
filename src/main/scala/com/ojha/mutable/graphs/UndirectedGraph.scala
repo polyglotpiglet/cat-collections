@@ -14,7 +14,9 @@ object UndirectedGraph {
 
 class UndirectedGraph[T] extends Graph[T] {
 
-
+  /**
+    * Add a bidirectional edge between pair._1 and pair._2
+   */
   def addEdge(pair: (Node[T], Node[T]) ) = {
     val first = UnidirectionalEdge(pair._1, pair._2)
     val second = UnidirectionalEdge(pair._2, pair._1)
@@ -25,5 +27,21 @@ class UndirectedGraph[T] extends Graph[T] {
   }
 
   override def preOrderDfs(start: Node[T]): Seq[Node[T]] = super.preOrderDfs(start).reverse
+
+  /**
+    * The diameter of a graph is the maximum, over all choices of vertices s and t,
+    * of the shortest path distances between s and t.
+    * Node that the shortest path between is the number of nodes in the path not the number of
+    * edges.
+    * Ie if path was s -> a -> t then the path size would be 3. An alternative definition would
+    * be 2 (= number of edges between s and t).
+    *
+    * @return diameter of the graph
+    */
+  def diameter(): Int = {
+    val nodes = adjacencyListForOutgoingNodes.keys.toArray
+    val allPaths = nodes.indices.flatMap(i => (i until nodes.length).map(j => shortestPath(nodes(i), nodes(j))))
+    allPaths.map(_.length).max
+  }
 
 }
