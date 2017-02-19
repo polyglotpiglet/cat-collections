@@ -2,6 +2,7 @@ package com.ojha.mutable.graphs
 
 import sun.security.provider.certpath.AdjacencyList
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 trait Graph[T] {
@@ -100,7 +101,7 @@ trait Graph[T] {
     postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, List(start))
   }
 
-  protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
+  final protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
     stack match {
       case Nil => visited
       case node :: rest if visited.contains(node) => preOrderDfsForAdjacencyList(adjacencyList, rest, visited)
@@ -111,7 +112,8 @@ trait Graph[T] {
   }.reverse
 
 
-  protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
+  @tailrec
+  final protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
     stack match {
       case Nil => visited
       case node :: rest if visited.contains(node) => {

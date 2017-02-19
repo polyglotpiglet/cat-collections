@@ -136,11 +136,11 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
       (c, e),
       (d, e))
 
-    graph.shortestPath(s,a) should equal(List(s,a))
-    graph.shortestPath(s,b) should equal(List(s,b))
-    graph.shortestPath(s,d) should equal(List(s,b,d))
-    Seq(Seq(s,b,c), Seq(s,a,c)) should contain(graph.shortestPath(s,c)) // 2 options for shortest path to c
-    Seq(Seq(s,b,c,e), Seq(s,a,c,e), Seq(s,b,d,e)) should contain(graph.shortestPath(s,e)) // 3 options for shortest path to e
+    graph.shortestPath(s, a) should equal(List(s, a))
+    graph.shortestPath(s, b) should equal(List(s, b))
+    graph.shortestPath(s, d) should equal(List(s, b, d))
+    Seq(Seq(s, b, c), Seq(s, a, c)) should contain(graph.shortestPath(s, c)) // 2 options for shortest path to c
+    Seq(Seq(s, b, c, e), Seq(s, a, c, e), Seq(s, b, d, e)) should contain(graph.shortestPath(s, e)) // 3 options for shortest path to e
 
   }
 
@@ -234,6 +234,17 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
   }
 
   it should "generate topological sort for graph" in {
+
+    /*
+       c
+     ^   \
+    /     v
+  a        d
+    \     ^
+     v   /
+       b
+   */
+
     val a = Node("a")
     val b = Node("b")
     val c = Node("c")
@@ -250,6 +261,17 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
   }
 
   it should "fail to generate topological sort for directed cyclic graph" in {
+
+    /*
+         c
+       ^   \
+      /     v
+    a        d
+      ^     /
+       \   v
+         b
+     */
+
     val a = Node("a")
     val b = Node("b")
     val c = Node("c")
@@ -258,8 +280,39 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     val graph = DirectedGraph(a, b, c, d)
     graph addEdges((a, b),
       (b, c),
-      (d, d),
+      (c, d),
       (d, a))
+
+    val topSort = graph.topologicalSort
+    graph.isTopologicalSort(topSort) should be(false)
+  }
+
+  it should "be a cat" in {
+
+    /*
+           b
+         ^    \
+        /      \
+       /   |    v
+    a  < - | - - d
+      \    |    ^
+       \   |   /
+        v  v  /
+           c
+     */
+
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+
+    val graph = DirectedGraph(a, b, c, d)
+    graph addEdges((a, b),
+      (b, d),
+      (b, c),
+      (d, a),
+      (c, d),
+      (a, c))
 
     val topSort = graph.topologicalSort
     graph.isTopologicalSort(topSort) should be(false)
@@ -291,9 +344,9 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.reverse()
 
     val expected = Seq(
-      Seq(b, e, h),
+      Seq(d, g, a),
       Seq(f, i, c),
-      Seq(d, g, a)
+      Seq(b, e, h)
     )
 
     graph.stronglyConnected should equal(expected)
@@ -326,8 +379,8 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.reverse()
 
     val expected = Seq(
-      Seq(b, e, h),
-      Seq(c ,f, i, a, d, g)
+      Seq(c, f, i, a, d, g),
+      Seq(b, e, h)
     )
 
     graph.stronglyConnected should equal(expected)
