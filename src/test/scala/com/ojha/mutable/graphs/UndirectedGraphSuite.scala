@@ -135,6 +135,35 @@ class UndirectedGraphSuite extends FlatSpec with Matchers {
     graph.diameter should equal(4)
   }
 
+  it should "compute the radius of an undirected connected graph" in {
+
+    /*         e
+              / \
+    s - a - c  - d
+      \    /    /
+        b  - - -
+     */
+
+    val s = Node("s")
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+
+    val graph = UndirectedGraph(s,a,b,c,d,e)
+    graph addEdges((s, a),
+      (s, b),
+      (a, c),
+      (b, c),
+      (b, d),
+      (c, d),
+      (c, e),
+      (d, e))
+
+    graph.radius should equal(3)
+  }
+
   it should "compute the diameter of an 4 node cyclic undirected connected graph" in {
     /*
 
@@ -156,6 +185,29 @@ class UndirectedGraphSuite extends FlatSpec with Matchers {
       (b, c))
 
     graph.diameter should equal(3)
+  }
+
+  it should "compute the radius of an 4 node cyclic undirected connected graph" in {
+    /*
+
+    s - a - c
+      \    /
+        b
+     */
+
+    val s = Node("s")
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+
+    val graph = UndirectedGraph(s,a,b,c)
+    graph addEdges(
+      (s, a),
+      (s, b),
+      (a, c),
+      (b, c))
+
+    graph.radius should equal(3)
   }
 
   it should "do postorder dfs" in {

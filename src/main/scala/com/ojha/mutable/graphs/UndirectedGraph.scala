@@ -14,6 +14,7 @@ object UndirectedGraph {
 
 class UndirectedGraph[T] extends Graph[T] {
 
+
   /**
     * Add a bidirectional edge between pair._1 and pair._2
    */
@@ -42,6 +43,17 @@ class UndirectedGraph[T] extends Graph[T] {
     val nodes = adjacencyListForOutgoingNodes.keys.toArray
     val allPaths = nodes.indices.flatMap(i => (i until nodes.length).map(j => shortestPath(nodes(i), nodes(j))))
     allPaths.map(_.length).max
+  }
+
+  /* TODO optimise because this is shit slow rofl */
+  /**
+    * For each node s in a graph, f(s) is the maximum distance to another node in the graph.
+    * The radius of a graph is the minimum f(s) over all choices of s (ie over all nodes in the graph
+    * @return radius of the graph
+    */
+  def radius: Int = {
+    val nodes = adjacencyListForOutgoingNodes.keys.toArray
+    nodes.map(node => nodes.map(other => shortestPath(node, other)).map(_.length).max).min
   }
 
 }
