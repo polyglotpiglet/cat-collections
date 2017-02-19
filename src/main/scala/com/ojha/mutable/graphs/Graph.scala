@@ -61,9 +61,32 @@ trait Graph[T] {
         aux(visited + node)
       }
     }
-
     aux()
   }
+
+  def shortestPath(from: Node[T], to: Node[T]) = {
+
+    val q = new mutable.Queue[(Node[T], Seq[Node[T]])]()
+    q.enqueue((from, Seq.empty))
+
+    def aux(visited: Seq[Node[T]] = Seq.empty): Seq[Node[T]] = {
+      if (q.isEmpty) Seq.empty
+      else {
+        val (node, pathToNode) = q.dequeue()
+        if (node == to) pathToNode.:+(node)
+        else {
+          adjacencyListForOutgoingNodes(node)
+            .map(_.to)
+            .filter(!visited.contains(_))
+            .foreach(child => q.enqueue((child, pathToNode.:+(node))))
+          aux(visited.:+(node))
+        }
+      }
+    }
+    aux()
+
+  }
+
 
   /**
     * @param start

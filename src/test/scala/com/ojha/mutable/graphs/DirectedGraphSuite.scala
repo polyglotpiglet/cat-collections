@@ -108,6 +108,42 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.preOrderDfs(s) should equal(List(s, b, d, e, c, a))
   }
 
+  it should "compute shortest path between nodes in directed graph" in {
+
+    /*           e
+               ^  ^
+              /    \
+    s -> a -> c  -> d
+      \      ^      ^
+       v    /      /
+          b  - - -
+     */
+
+    val s = Node("s")
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+
+    val graph = DirectedGraph(s, a, b, c, d, e)
+    graph addEdges((s, a),
+      (s, b),
+      (a, c),
+      (b, c),
+      (b, d),
+      (c, d),
+      (c, e),
+      (d, e))
+
+    graph.shortestPath(s,a) should equal(List(s,a))
+    graph.shortestPath(s,b) should equal(List(s,b))
+    graph.shortestPath(s,d) should equal(List(s,b,d))
+    Seq(Seq(s,b,c), Seq(s,a,c)) should contain(graph.shortestPath(s,c)) // 2 options for shortest path to c
+    Seq(Seq(s,b,c,e), Seq(s,a,c,e), Seq(s,b,d,e)) should contain(graph.shortestPath(s,e)) // 3 options for shortest path to e
+
+  }
+
   it should "do postorder for directed edges" in {
 
     /*           e

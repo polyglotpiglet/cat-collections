@@ -14,6 +14,7 @@ object UndirectedGraph {
 
 class UndirectedGraph[T] extends Graph[T] {
 
+
   def addEdge(pair: (Node[T], Node[T]) ) = {
     val first = UnidirectionalEdge(pair._1, pair._2)
     val second = UnidirectionalEdge(pair._2, pair._1)
@@ -22,5 +23,7 @@ class UndirectedGraph[T] extends Graph[T] {
     adjacencyListForOutgoingNodes(pair._1) = first +: adjacencyListForOutgoingNodes(pair._1)
     adjacencyListForOutgoingNodes(pair._2) = second +: adjacencyListForOutgoingNodes(pair._2)
   }
+
+  override def preOrderDfs(start: Node[T]): Seq[Node[T]] = super.preOrderDfs(start).reverse
 
 }
