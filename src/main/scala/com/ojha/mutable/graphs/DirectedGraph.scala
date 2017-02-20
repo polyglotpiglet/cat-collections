@@ -80,6 +80,8 @@ class DirectedGraph[T] extends Graph[T] {
 
   def stronglyConnected: Seq[Seq[Node[T]]] = {
 
+    //got order Node(12) Node(11) Node(10) Node(7) Node(9) Node(8) Node(6) Node(3) Node(2) Node(1) Node(5) Node(4)
+
     val start = (Map.empty[Node[T], Int], 0)
     val order = adjacencyListForIncomingNodes.keys.foldLeft(start) ((acc, next) => {
       val (visited, index) = acc
@@ -92,8 +94,8 @@ class DirectedGraph[T] extends Graph[T] {
       }
       else acc
     })._1.toList.sortBy(_._2).map(_._1)
-//    println("got order " + order.mkString(" "))
-    println("got order")
+    println("got order " + order.mkString(" "))
+//    println("got order")
 
     order.foldLeft(Set.empty[Node[T]], Seq.empty[Seq[Node[T]]]) ((acc, next) => {
       val (visited, partialResult) = acc

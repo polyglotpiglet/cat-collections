@@ -103,16 +103,15 @@ trait Graph[T] {
   final protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: Set[Node[T]], partialResult: Seq[Node[T]]): Seq[Node[T]] = {
     stack match {
       case Nil => partialResult.reverse
-      case node :: rest if visited.contains(node) => preOrderDfsForAdjacencyList(adjacencyList, rest, visited, partialResult)
       case node :: rest => {
         val unexploredNodes = adjacencyList(node).map(_.to).filterNot(visited.contains).toList
-        preOrderDfsForAdjacencyList(adjacencyList, unexploredNodes ++ rest, visited.+(node), partialResult.+:(node))
+        preOrderDfsForAdjacencyList(adjacencyList, unexploredNodes ++ rest, visited.union(unexploredNodes.toSet), partialResult.+:(node))
       }
     }
   }
 
   final protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, start: Node[T], visited: Set[Node[T]] = Set.empty): Seq[Node[T]] = {
-    this.preOrderDfsForAdjacencyList(adjacencyList, List(start), visited, Seq.empty)
+    this.preOrderDfsForAdjacencyList(adjacencyList, List(start), visited.+(start), Seq.empty)
   }
 
   /**
