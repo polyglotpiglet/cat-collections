@@ -343,13 +343,11 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph addEdges((a, g), (g, d), (d, a), (g, i), (i, f), (f, c), (c, i), (f, h), (h, e), (e, b), (b, h))
     graph.reverse()
 
-    val expected = Seq(
-      Seq(d, g, a),
-      Seq(f, i, c),
-      Seq(b, e, h)
-    )
-
-    graph.stronglyConnected should equal(expected)
+    val actual = graph.stronglyConnected
+    actual.size should be(3)
+    actual should contain(Seq(a,d,g))
+    actual should contain(Seq(c,f,i))
+    actual should contain(Seq(h,b,e))
 
   }
 
@@ -379,11 +377,14 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.reverse()
 
     val expected = Seq(
-      Seq(c, f, i, a, d, g),
-      Seq(b, e, h)
+      Seq(g, a, d, c, f, i),
+      Seq(h, b, e)
     )
 
-    graph.stronglyConnected should equal(expected)
+    val actual = graph.stronglyConnected
+    actual.size should be(2)
+    actual should contain(Seq(h,b,e))
+    actual should contain(Seq(g,a,d,c,f,i))
 
   }
 

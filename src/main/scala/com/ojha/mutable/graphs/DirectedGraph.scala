@@ -79,9 +79,32 @@ class DirectedGraph[T] extends Graph[T] {
     nodes.foreach(node => adjacencyListForOutgoingNodes(node) = temp(node))
   }
 
-
-
   def stronglyConnected: Seq[Seq[Node[T]]] = {
+
+    val start = (Map.empty[Node[T], Int], 0)
+    val order = adjacencyListForIncomingNodes.keys.foldLeft(start) ((acc, next) => {
+      val (visited, index) = acc
+      if (!visited.contains(next)) {
+        val toAdd = postOrderDfsForAdjacencyList(adjacencyListForIncomingNodes, next).filterNot(visited.contains).reverse
+        val size = toAdd.size
+        val zipped = toAdd.zip(index until index + size)
+        (visited ++ zipped, size)
+      }
+      else acc
+    })._1.toList.sortBy(_._2).map(_._1)
+    println(s"Got order ${order.size}")
+
+    order.foldLeft(Set.empty[Node[T]], Seq.empty[Seq[Node[T]]]) ((acc, next) => {
+      val (visited, partialResult) = acc
+      if (!visited.contains(next)) {
+        val toAdd = postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next).filterNot(visited.contains)
+        (visited ++ toAdd, partialResult.:+(toAdd))
+      }
+      else acc
+    })._2
+  }
+
+  def stronglyConnected2: Seq[Seq[Node[T]]] = {
     /*
      We need to store things in order so using a Seq but need fast lookup of explored nodes hence the set.
      Maybe not super efficient for space but the best i can do right now
@@ -92,14 +115,18 @@ class DirectedGraph[T] extends Graph[T] {
       nodes.foldLeft(start) ((acc, next) => {
         val (visited, partialResult) = acc
         if (!visited.contains(next)) {
-          val toAdd = postOrderDfsForAdjacencyList(adjacencyList, List(next)).filterNot(visited.contains)
+          val toAdd = postOrderDfsForAdjacencyList(adjacencyList,  next).filterNot(visited.contains)
           (visited ++ toAdd, f(toAdd, partialResult))
         }
         else acc
       })._2
     }
 
-    val order: Seq[Node[T]] = doDfs(adjacencyListForIncomingNodes.keys.toSeq, Seq.empty[Node[T]], (nodes: Seq[Node[T]], partialResult: Seq[Node[T]]) => partialResult ++ nodes, true)
+    val order: Seq[Node[T]] = doDfs(adjacencyListForIncomingNodes.keys.toSeq,
+      Seq.empty[Node[T]],
+      (nodes: Seq[Node[T]], partialResult: Seq[Node[T]]) => partialResult,
+      reverse = true)
+
     println("got order "  + order.length)
     doDfs(order, Seq.empty[Seq[Node[T]]], (nodes: Seq[Node[T]], partialResult: Seq[Seq[Node[T]]]) => nodes +: partialResult, false)
   }

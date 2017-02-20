@@ -113,7 +113,7 @@ trait Graph[T] {
 
 
   @tailrec
-  final protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: Set[Node[T]] = Set.empty, partialResult: Seq[Node[T]] = Seq.empty): Seq[Node[T]] = {
+  final private def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: Set[Node[T]] = Set.empty, partialResult: Seq[Node[T]] = Seq.empty): Seq[Node[T]] = {
     stack match {
       case Nil => partialResult.reverse
       case node :: rest if visited.contains(node) => {
@@ -125,6 +125,10 @@ trait Graph[T] {
         else postOrderDfsForAdjacencyList(adjacencyList, rest, visited + node, node +: partialResult)
       }
     }
+  }
+
+  final protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, start: Node[T]): Seq[Node[T]] = {
+   this.postOrderDfsForAdjacencyList(adjacencyList, List(start), Set.empty, Seq.empty)
   }
 
 
