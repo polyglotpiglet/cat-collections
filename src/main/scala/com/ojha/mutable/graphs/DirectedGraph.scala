@@ -1,7 +1,6 @@
 package com.ojha.mutable.graphs
 
 import scala.collection.mutable
-import scala.math.Ordering
 
 object DirectedGraph {
 
@@ -36,7 +35,7 @@ class DirectedGraph[T] extends Graph[T] {
     * @param node
     * @return list of nodes to which there exists a path of unit length from the input node
     */
-  def getIncomingNodes(node: Node[T]): Seq[Node[T]] = adjacencyListForIncomingNodes(node).map(_.from)
+  def getIncomingNodes(node: Node[T]): Seq[Node[T]] = adjacencyListForIncomingNodes(node).map(_.to)
 
   /**
     * Add one unidirectional edge
@@ -47,7 +46,7 @@ class DirectedGraph[T] extends Graph[T] {
     val edge = UnidirectionalEdge(fromToPair._1, fromToPair._2)
     edge +: edges
     adjacencyListForOutgoingNodes(fromToPair._1) = edge +: adjacencyListForOutgoingNodes(fromToPair._1)
-    adjacencyListForIncomingNodes(fromToPair._2) = edge +: adjacencyListForIncomingNodes(fromToPair._2)
+    adjacencyListForIncomingNodes(fromToPair._2) = UnidirectionalEdge(edge.to, edge.from) +: adjacencyListForIncomingNodes(fromToPair._2)
   }
 
   /**
@@ -85,20 +84,22 @@ class DirectedGraph[T] extends Graph[T] {
     val order = adjacencyListForIncomingNodes.keys.foldLeft(start) ((acc, next) => {
       val (visited, index) = acc
       if (!visited.contains(next)) {
-        val toAdd = postOrderDfsForAdjacencyList(adjacencyListForIncomingNodes, next).filterNot(visited.contains).reverse
+        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForIncomingNodes, next).filterNot(visited.contains).reverse
+//        println(s"${next.value} | ${toAdd.mkString(" ")}")
         val size = toAdd.size
         val zipped = toAdd.zip(index until index + size)
-        (visited ++ zipped, size)
+        (visited ++ zipped, index + size)
       }
       else acc
     })._1.toList.sortBy(_._2).map(_._1)
-    println(order.mkString(" "))
+//    println("got order " + order.mkString(" "))
 
     order.foldLeft(Set.empty[Node[T]], Seq.empty[Seq[Node[T]]]) ((acc, next) => {
       val (visited, partialResult) = acc
       if (!visited.contains(next)) {
-        println("DFSing for " + next.value)
-        val toAdd = postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next, visited)
+
+        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next).filterNot(visited.contains)
+//        println("DFSing for " + next.value + " | " + toAdd.mkString(" "))
         (visited ++ toAdd, partialResult.+:(toAdd))
       }
       else acc

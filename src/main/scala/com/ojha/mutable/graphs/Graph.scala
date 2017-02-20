@@ -85,32 +85,33 @@ trait Graph[T] {
       }
     }
     aux()
-
   }
-
 
   /**
     * @param start
     * @return depth first search from start
     */
   def preOrderDfs(start: Node[T]): Seq[Node[T]] = {
-    preOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, List(start))
+    preOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, start)
   }
 
   def postOrderDfs(start: Node[T]): Seq[Node[T]] = {
     postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, start)
   }
 
-  final protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
+  final protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]]): List[Node[T]] = {
     stack match {
       case Nil => visited
       case node :: rest if visited.contains(node) => preOrderDfsForAdjacencyList(adjacencyList, rest, visited)
       case node :: rest => preOrderDfsForAdjacencyList(adjacencyList,
         adjacencyList(node).map(_.to).filterNot(visited.contains(_)).toList ++ rest,
-        node +: visited)
+        visited.+:(node))
     }
   }.reverse
 
+  final protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, start: Node[T], visited: Set[Node[T]] = Set.empty): Seq[Node[T]] = {
+    this.preOrderDfsForAdjacencyList(adjacencyList, List(start), visited.toList)
+  }
   var enabled = false
   var count = 0
   var maxSize = 0
