@@ -98,7 +98,7 @@ trait Graph[T] {
   }
 
   def postOrderDfs(start: Node[T]): Seq[Node[T]] = {
-    postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, List(start))
+    postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, start)
   }
 
   final protected def preOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: List[Node[T]] = List.empty): List[Node[T]] = {
@@ -111,26 +111,37 @@ trait Graph[T] {
     }
   }.reverse
 
+  var enabled = false
+  var count = 0
+  var maxSize = 0
 
+  /**
+    *
+    * @param adjacencyList
+    * @param stack
+    * @param visited set of nodes that have been visited or are in the stack waiting to be visisted
+    * @param partialResult
+    * @return
+    */
   @tailrec
-  final private def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: Set[Node[T]] = Set.empty, partialResult: Seq[Node[T]] = Seq.empty): Seq[Node[T]] = {
+  final private def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, stack: List[Node[T]], visited: Set[Node[T]], partialResult: Seq[Node[T]]): Seq[Node[T]] = {
     stack match {
       case Nil => partialResult.reverse
-      case node :: rest if visited.contains(node) => {
-        postOrderDfsForAdjacencyList(adjacencyList, rest, visited, partialResult)
-      }
       case node :: rest  => {
-        val unExploredConnections = adjacencyList(node).map(_.to).filterNot((visited ++ stack).contains).toList
-        if (unExploredConnections.nonEmpty) postOrderDfsForAdjacencyList(adjacencyList, unExploredConnections ++ stack, visited, partialResult)
-        else postOrderDfsForAdjacencyList(adjacencyList, rest, visited + node, node +: partialResult)
+        val unExploredConnections = adjacencyList(node).map(_.to).filterNot(visited.contains).toList
+        if (unExploredConnections.nonEmpty) {
+          postOrderDfsForAdjacencyList(adjacencyList, unExploredConnections ++ stack, unExploredConnections.foldLeft(visited)((acc, next)=>acc.+(next)), partialResult)
+        }
+        else {
+          postOrderDfsForAdjacencyList(adjacencyList, rest, visited.+(node), node +: partialResult)
+        }
       }
     }
   }
 
-  final protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, start: Node[T]): Seq[Node[T]] = {
-   this.postOrderDfsForAdjacencyList(adjacencyList, List(start), Set.empty, Seq.empty)
+  final protected def postOrderDfsForAdjacencyList(adjacencyList: AdjacencyList, start: Node[T], visited: Set[Node[T]] = Set.empty): Seq[Node[T]] = {
+    this.postOrderDfsForAdjacencyList(adjacencyList, List(start), visited.+(start), Seq.empty)
   }
-
 
 }
 

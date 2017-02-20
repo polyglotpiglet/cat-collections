@@ -92,44 +92,16 @@ class DirectedGraph[T] extends Graph[T] {
       }
       else acc
     })._1.toList.sortBy(_._2).map(_._1)
-    println(s"Got order ${order.size}")
+    println(order.mkString(" "))
 
     order.foldLeft(Set.empty[Node[T]], Seq.empty[Seq[Node[T]]]) ((acc, next) => {
       val (visited, partialResult) = acc
       if (!visited.contains(next)) {
-        val toAdd = postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next).filterNot(visited.contains)
-        (visited ++ toAdd, partialResult.:+(toAdd))
+        println("DFSing for " + next.value)
+        val toAdd = postOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next, visited)
+        (visited ++ toAdd, partialResult.+:(toAdd))
       }
       else acc
     })._2
   }
-
-  def stronglyConnected2: Seq[Seq[Node[T]]] = {
-    /*
-     We need to store things in order so using a Seq but need fast lookup of explored nodes hence the set.
-     Maybe not super efficient for space but the best i can do right now
-      */
-    def doDfs[R](nodes: Seq[Node[T]], partialResultHolder: Seq[R], f: (Seq[Node[T]], Seq[R]) => Seq[R], reverse: Boolean): Seq[R] = {
-      val adjacencyList = if (reverse) adjacencyListForIncomingNodes else adjacencyListForOutgoingNodes
-      val start = (Set.empty[Node[T]], partialResultHolder)
-      nodes.foldLeft(start) ((acc, next) => {
-        val (visited, partialResult) = acc
-        if (!visited.contains(next)) {
-          val toAdd = postOrderDfsForAdjacencyList(adjacencyList,  next).filterNot(visited.contains)
-          (visited ++ toAdd, f(toAdd, partialResult))
-        }
-        else acc
-      })._2
-    }
-
-    val order: Seq[Node[T]] = doDfs(adjacencyListForIncomingNodes.keys.toSeq,
-      Seq.empty[Node[T]],
-      (nodes: Seq[Node[T]], partialResult: Seq[Node[T]]) => partialResult,
-      reverse = true)
-
-    println("got order "  + order.length)
-    doDfs(order, Seq.empty[Seq[Node[T]]], (nodes: Seq[Node[T]], partialResult: Seq[Seq[Node[T]]]) => nodes +: partialResult, false)
-  }
-
-
 }
