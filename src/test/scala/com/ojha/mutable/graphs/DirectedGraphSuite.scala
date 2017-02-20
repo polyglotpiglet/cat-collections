@@ -215,7 +215,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
   }
 
-  it should "do partial post order dfs" in {
+  it should "do partial pre order dfs" in {
     val graph = new DirectedGraph[Int]()
     val nodes = (1 to 12).map(Node(_))
     nodes.foreach(graph.addNode)
@@ -225,7 +225,18 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     edgePairs.foreach(graph.addEdge)
 
     graph.preOrderDfs(Node(12)).map(_.value) should equal(Seq(12, 10, 11, 9, 7, 8))
+  }
 
+  it should "find five biggest sccs in graph" in {
+    val graph = new DirectedGraph[Int]()
+    val nodes = (1 to 12).map(Node(_))
+    nodes.foreach(graph.addNode)
+
+    val edgeString = "1,2 2,3 2,4 2,5 3,6 4,5 4,7 5,2 5,6 5,7 6,3 6,8 7,8 7,10 8,7 9,7 10,9 10,11 11,12 12,10"
+    val edgePairs = edgeString.split(" ").map(_.split(",")).map(a => (Node(a(0).toInt), Node(a(1).toInt)))
+    edgePairs.foreach(graph.addEdge)
+
+    graph.stronglyConnected.map(_.size).sorted.reverse.take(5) should equal(Seq(6, 3, 2, 1))
   }
 
   it should "verify topological sort for graph" in {
@@ -356,11 +367,11 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph addEdges((a, g), (g, d), (d, a), (g, i), (i, f), (f, c), (c, i), (f, h), (h, e), (e, b), (b, h))
     graph.reverse()
 
-    val actual = graph.stronglyConnected
+    val actual = graph.stronglyConnected.map(_.sortWith((a, b) => a.value < b.value))
     actual.size should be(3)
     actual should contain(Seq(a, d, g))
-    actual should contain(Seq(c, i, f))
-    actual should contain(Seq(h, b, e))
+    actual should contain(Seq(c, f, i))
+    actual should contain(Seq(b, e, h))
 
   }
 
@@ -389,10 +400,10 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph addEdges((a, g), (g, d), (d, a), (g, i), (i, f), (f, c), (c, i), (f, h), (h, e), (e, b), (b, h), (c, d))
     graph.reverse()
 
-    val actual = graph.stronglyConnected
+    val actual = graph.stronglyConnected.map(_.sortWith((a, b) => a.value < b.value))
     actual.size should be(2)
-    actual should contain(Seq(h, b, e))
-    actual should contain(Seq(g, a, d, c, f, i))
+    actual should contain(Seq(b, e, h))
+    actual should contain(Seq(a, c, d, f, g, i))
 
   }
 
