@@ -27,8 +27,6 @@ class UndirectedGraph[T] extends Graph[T] {
     adjacencyListForOutgoingNodes(pair._2) = second +: adjacencyListForOutgoingNodes(pair._2)
   }
 
-  override def preOrderDfs(start: Node[T]): Seq[Node[T]] = super.preOrderDfs(start).reverse
-
   /**
     * The diameter of a graph is the maximum, over all choices of vertices s and t,
     * of the shortest path distances between s and t.

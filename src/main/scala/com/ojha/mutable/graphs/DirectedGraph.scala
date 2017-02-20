@@ -84,7 +84,7 @@ class DirectedGraph[T] extends Graph[T] {
     val order = adjacencyListForIncomingNodes.keys.foldLeft(start) ((acc, next) => {
       val (visited, index) = acc
       if (!visited.contains(next)) {
-        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForIncomingNodes, next, visited)//.filterNot(visited.contains)
+        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForIncomingNodes, next, visited.keySet)//.filterNot(visited.contains)
 //        println(s"${next.value} | ${toAdd.mkString(" ")}")
         val size = toAdd.size
         val zipped = toAdd.zip(index until index + size)
@@ -99,7 +99,7 @@ class DirectedGraph[T] extends Graph[T] {
       val (visited, partialResult) = acc
       if (!visited.contains(next)) {
 
-        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next).filterNot(visited.contains)
+        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next, visited)//.filterNot(visited.contains)
 //        println("DFSing for " + next.value + " | " + toAdd.mkString(" "))
         (visited ++ toAdd, partialResult.+:(toAdd))
       }

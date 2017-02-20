@@ -104,9 +104,10 @@ trait Graph[T] {
     stack match {
       case Nil => partialResult.reverse
       case node :: rest if visited.contains(node) => preOrderDfsForAdjacencyList(adjacencyList, rest, visited, partialResult)
-      case node :: rest => preOrderDfsForAdjacencyList(adjacencyList,
-        adjacencyList(node).map(_.to).filterNot(visited.contains).toList ++ rest,
-        visited.+(node), partialResult.+:(node))
+      case node :: rest => {
+        val unexploredNodes = adjacencyList(node).map(_.to).filterNot(visited.contains).toList
+        preOrderDfsForAdjacencyList(adjacencyList, unexploredNodes ++ rest, visited.+(node), partialResult.+:(node))
+      }
     }
   }
 
