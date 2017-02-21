@@ -80,29 +80,22 @@ class DirectedGraph[T] extends Graph[T] {
 
   def stronglyConnected: Seq[Seq[Node[T]]] = {
 
-    //got order Node(12) Node(11) Node(10) Node(7) Node(9) Node(8) Node(6) Node(3) Node(2) Node(1) Node(5) Node(4)
-
-    val start = (Map.empty[Node[T], Int], 0)
+    val start = (Seq.empty[Node[T]], Set.empty[Node[T]])
     val order = adjacencyListForIncomingNodes.keys.foldLeft(start) ((acc, next) => {
-      val (visited, index) = acc
+      val (result, visited) = acc
       if (!visited.contains(next)) {
-        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForIncomingNodes, next, visited.keySet)//.filterNot(visited.contains)
-//        println(s"${next.value} | ${toAdd.mkString(" ")}")
-        val size = toAdd.size
-        val zipped = toAdd.zip(index until index + size)
-        (visited ++ zipped, index + size)
+        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForIncomingNodes, next, visited)
+
+        // quicker to fold left over result than try and do super slow concat for large graphs
+        (toAdd.reverse.foldLeft(result)(_.+:(_)), toAdd.foldLeft(visited)(_ + _))
       }
       else acc
-    })._1.toList.sortBy(_._2).map(_._1)
-    println("got order " + order.mkString(" "))
-//    println("got order")
+    })._1
 
     order.foldLeft(Set.empty[Node[T]], Seq.empty[Seq[Node[T]]]) ((acc, next) => {
       val (visited, partialResult) = acc
       if (!visited.contains(next)) {
-
-        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next, visited)//.filterNot(visited.contains)
-//        println("DFSing for " + next.value + " | " + toAdd.mkString(" "))
+        val toAdd = preOrderDfsForAdjacencyList(adjacencyListForOutgoingNodes, next, visited)
         (visited ++ toAdd, partialResult.+:(toAdd))
       }
       else acc

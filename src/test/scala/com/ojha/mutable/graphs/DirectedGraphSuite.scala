@@ -227,6 +227,8 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.preOrderDfs(Node(12)).map(_.value) should equal(Seq(12, 10, 11, 9, 7, 8))
   }
 
+
+
   it should "find five biggest sccs in graph" in {
     val graph = new DirectedGraph[Int]()
     val nodes = (1 to 12).map(Node(_))
@@ -237,6 +239,29 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     edgePairs.foreach(graph.addEdge)
 
     graph.stronglyConnected.map(_.size).sorted.reverse.take(5) should equal(Seq(6, 3, 2, 1))
+  }
+
+  it should "find five biggest sccs in 8 node example graph" in {
+    val graph = new DirectedGraph[Int]()
+    val nodes = (1 to 8).map(Node(_))
+    nodes.foreach(graph.addNode)
+    val edgeString = "1,2 2,3 3,1 3,4 5,4 6,4 8,6 6,7 7,8 4,3 4,6"
+    val edgePairs = edgeString.split(" ").map(_.split(",")).map(a => (Node(a(0).toInt), Node(a(1).toInt)))
+    edgePairs.foreach(graph.addEdge)
+
+    graph.stronglyConnected.map(_.size).sorted.reverse.take(5) should equal(Seq(7, 1))
+  }
+
+  it should "find five biggest sccs in 9 node example graph" in {
+    val edgeString = "1,4 2,8 3,6 4,7 5,2 6,9 7,1 8,5 8,6 9,7 9,3"
+
+    val graph = new DirectedGraph[Int]()
+    val nodes = (1 to 9).map(Node(_))
+    nodes.foreach(graph.addNode)
+    val edgePairs = edgeString.split(" ").map(_.split(",")).map(a => (Node(a(0).toInt), Node(a(1).toInt)))
+    edgePairs.foreach(graph.addEdge)
+
+    graph.stronglyConnected.map(_.size).sorted.reverse.take(5) should equal(Seq(3, 3, 3))
   }
 
   it should "verify topological sort for graph" in {
@@ -365,7 +390,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
     val graph = DirectedGraph(a, b, c, d, e, f, g, h, i)
     graph addEdges((a, g), (g, d), (d, a), (g, i), (i, f), (f, c), (c, i), (f, h), (h, e), (e, b), (b, h))
-    graph.reverse()
+    //    graph.reverse()
 
     val actual = graph.stronglyConnected.map(_.sortWith((a, b) => a.value < b.value))
     actual.size should be(3)
@@ -398,12 +423,38 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
     val graph = DirectedGraph(a, b, c, d, e, f, g, h, i)
     graph addEdges((a, g), (g, d), (d, a), (g, i), (i, f), (f, c), (c, i), (f, h), (h, e), (e, b), (b, h), (c, d))
-    graph.reverse()
+    //    graph.reverse()
 
     val actual = graph.stronglyConnected.map(_.sortWith((a, b) => a.value < b.value))
     actual.size should be(2)
     actual should contain(Seq(b, e, h))
     actual should contain(Seq(a, c, d, f, g, i))
+
+  }
+
+  it should "be a catty" in {
+    val a = Node("a")
+    val b = Node("b")
+    val c = Node("c")
+    val d = Node("d")
+    val e = Node("e")
+    val f = Node("f")
+    val g = Node("g")
+    val h = Node("h")
+    val i = Node("i")
+    val j = Node("j")
+    val k = Node("k")
+
+    val graph = DirectedGraph(a, b, c, d, e, f, g, h, i, j, k)
+    graph.addEdges((a, b), (b, c), (c, a), (b, d), (d, e), (e, f), (f, d), (g, f), (g, h), (h, i), (i, j), (j, g), (j, k))
+
+    val components = graph.stronglyConnected.map(_.sortWith((a, b) => a.value < b.value))
+    components.size should equal(4)
+    components should contain(Seq(k))
+    components should contain(Seq(a, b, c))
+    components should contain(Seq(d, e, f))
+    components should contain(Seq(g, h, i, j))
+
 
   }
 
