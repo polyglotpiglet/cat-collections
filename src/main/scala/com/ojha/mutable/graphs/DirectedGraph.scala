@@ -78,8 +78,12 @@ class DirectedGraph[T] extends Graph[T] {
     nodes.foreach(node => adjacencyListForOutgoingNodes(node) = temp(node))
   }
 
+  /**
+    * A strongly connected component in a graph is a collection of nodes
+    * where every node in the collection is reachable by every other node
+    * @return All the strongly connected components in the graph
+    */
   def stronglyConnected: Seq[Seq[Node[T]]] = {
-
     val start = (Seq.empty[Node[T]], Set.empty[Node[T]])
     val order = adjacencyListForIncomingNodes.keys.foldLeft(start) ((acc, next) => {
       val (result, visited) = acc
