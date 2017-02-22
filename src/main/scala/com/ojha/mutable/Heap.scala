@@ -4,10 +4,10 @@ import scala.collection.mutable
 import scala.math.Ordering
 
 object Heap {
-  def empty[T] = new Heap[T]
+  def empty[T](implicit ord: Ordering[T]) = new Heap[T]
 }
 
-class Heap[T] {
+class Heap[T] (implicit val ord: Ordering[T]){
 
   private val backing = mutable.ArrayBuffer.empty[T]
 
@@ -15,7 +15,7 @@ class Heap[T] {
     * Insert an item into the heap
     * Inserts to any leaf, then bubbles up such that heap remains sorted
     */
-  def insert(value: T)(implicit ord: Ordering[T]) = {
+  def insert(value: T) = {
     val insertIndex = backing.length
     backing.insert(insertIndex, value)
     bubbleUpFrom(insertIndex)
