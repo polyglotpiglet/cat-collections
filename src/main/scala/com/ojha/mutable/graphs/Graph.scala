@@ -1,7 +1,5 @@
 package com.ojha.mutable.graphs
 
-import sun.security.provider.certpath.AdjacencyList
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 
@@ -36,9 +34,13 @@ trait Graph[T] {
   /**
     * @param edgeDefinitions
     */
-  def addEdges(edgeDefinitions: (Node[T], Node[T])*) = edgeDefinitions foreach addEdge
+  def addEdges(edgeDefinitions: (Node[T], Node[T])*) = edgeDefinitions foreach addUnitEdge
 
-  def addEdge(pair: (Node[T], Node[T])): Unit
+  def addWeightedEdges(edgeDefinitions: (Node[T], Node[T], Int)*) = edgeDefinitions foreach addWeightedEdge
+
+  def addUnitEdge(pair: (Node[T], Node[T])): Unit
+
+  def addWeightedEdge(pair: (Node[T], Node[T], Int)): Unit
 
   /**
     * @param node
@@ -144,5 +146,4 @@ trait Graph[T] {
 
 }
 
-
-case class UnidirectionalEdge[T](from: Node[T], to: Node[T])
+case class UnidirectionalEdge[T](from: Node[T], to: Node[T], weight: Int = 1)

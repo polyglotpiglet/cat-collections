@@ -18,9 +18,18 @@ class UndirectedGraph[T] extends Graph[T] {
   /**
     * Add a bidirectional edge between pair._1 and pair._2
    */
-  def addEdge(pair: (Node[T], Node[T]) ) = {
+  def addUnitEdge(pair: (Node[T], Node[T]) ) = {
     val first = UnidirectionalEdge(pair._1, pair._2)
     val second = UnidirectionalEdge(pair._2, pair._1)
+    first +: edges
+    second +: edges
+    adjacencyListForOutgoingNodes(pair._1) = first +: adjacencyListForOutgoingNodes(pair._1)
+    adjacencyListForOutgoingNodes(pair._2) = second +: adjacencyListForOutgoingNodes(pair._2)
+  }
+
+  override def addWeightedEdge(pair: (Node[T], Node[T], Int)): Unit = {
+    val first = UnidirectionalEdge(pair._1, pair._2, pair._3)
+    val second = UnidirectionalEdge(pair._2, pair._1, pair._3)
     first +: edges
     second +: edges
     adjacencyListForOutgoingNodes(pair._1) = first +: adjacencyListForOutgoingNodes(pair._1)
@@ -47,6 +56,7 @@ class UndirectedGraph[T] extends Graph[T] {
   /**
     * For each node s in a graph, f(s) is the maximum distance to another node in the graph.
     * The radius of a graph is the minimum f(s) over all choices of s (ie over all nodes in the graph
+    *
     * @return radius of the graph
     */
   def radius: Int = {

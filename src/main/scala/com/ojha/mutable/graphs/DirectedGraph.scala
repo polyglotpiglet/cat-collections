@@ -16,6 +16,62 @@ object DirectedGraph {
 
 class DirectedGraph[T] extends Graph[T] {
 
+
+  /**
+    * Uses dijkstra to compute shortest path for graph with weighted edges
+    *
+    * @param from
+    * @param to
+    * @return tuple: (route between from and to, total weight of route)
+    */
+  def shortestWeightedPath(from: Node[T], to: Node[T]): (Seq[Node[T]], Int) = {
+    shortestWeightedPathsToAllOtherNodes(from)(to)
+  }
+
+  var count = 0
+  def shortestWeightedPathsToAllOtherNodes(from: Node[T]): Map[Node[T], (Seq[Node[T]], Int)] = {
+
+
+
+
+
+    val nodes = mutable.HashSet().++(adjacencyListForIncomingNodes.keys)
+    val tentativeDistances = adjacencyListForIncomingNodes.keySet.map(node => (node, (Seq.empty[Node[T]], Int.MaxValue))).toMap.updated(from, (Seq(from), 0))
+
+    aux(from, tentativeDistances, nodes)
+  }
+
+  def aux(currentNode: Node[T],
+          tentativeDistances: Map[Node[T], (Seq[Node[T]], Int)],
+          unvisitedNodes: mutable.HashSet[Node[T]]): Map[Node[T], (Seq[Node[T]], Int)] = {
+    count += 1
+
+    if (unvisitedNodes.isEmpty) return tentativeDistances
+
+    val (pathToCurrentNode, weightToCurrentNode) = tentativeDistances(currentNode)
+
+    val tentativeDistancesToUnvisitedNeighbours = this.adjacencyListForOutgoingNodes(currentNode)
+      .filter(edge => unvisitedNodes.contains(edge.to))
+      .map(edge => (edge.to, edge.weight + weightToCurrentNode))
+      .toMap
+
+    val updatedTentativeDistances = tentativeDistances.map { case (node, (route, weight)) =>
+      if (tentativeDistancesToUnvisitedNeighbours.contains(node) && tentativeDistancesToUnvisitedNeighbours(node) < weight) {
+        (node, (pathToCurrentNode.:+(node), tentativeDistancesToUnvisitedNeighbours(node)))
+      }
+      else (node, (route, weight))
+    }
+
+    val visitNode = unvisitedNodes.-(currentNode)
+    if (visitNode.nonEmpty) {
+      val nextNode = visitNode.minBy(node => updatedTentativeDistances(node)._2)
+      aux(nextNode, updatedTentativeDistances, visitNode)
+    }
+    else {
+      updatedTentativeDistances
+    }
+  }
+
   /**
     * Store a map of Node to its incoming edges
     */
@@ -42,11 +98,19 @@ class DirectedGraph[T] extends Graph[T] {
     *
     * @param fromToPair
     */
-  def addEdge(fromToPair: (Node[T], Node[T]) ) = {
+  def addUnitEdge(fromToPair: (Node[T], Node[T])) = {
     val edge = UnidirectionalEdge(fromToPair._1, fromToPair._2)
     edge +: edges
     adjacencyListForOutgoingNodes(fromToPair._1) = edge +: adjacencyListForOutgoingNodes(fromToPair._1)
     adjacencyListForIncomingNodes(fromToPair._2) = UnidirectionalEdge(edge.to, edge.from) +: adjacencyListForIncomingNodes(fromToPair._2)
+  }
+
+
+  def addWeightedEdge(fromToPairWithWeight: (Node[T], Node[T], Int)) = {
+    val edge = UnidirectionalEdge(fromToPairWithWeight._1, fromToPairWithWeight._2, fromToPairWithWeight._3)
+    edge +: edges
+    adjacencyListForOutgoingNodes(fromToPairWithWeight._1) = edge +: adjacencyListForOutgoingNodes(fromToPairWithWeight._1)
+    adjacencyListForIncomingNodes(fromToPairWithWeight._2) = UnidirectionalEdge(edge.to, edge.from) +: adjacencyListForIncomingNodes(fromToPairWithWeight._2)
   }
 
   /**
@@ -68,12 +132,12 @@ class DirectedGraph[T] extends Graph[T] {
     val indexedSort = sort.zipWithIndex.toMap
     sort.forall(node => indexedSort.contains(node) &&
       adjacencyListForOutgoingNodes(node).forall(edge => indexedSort.contains(edge.to) &&
-                                         indexedSort(edge.to) > indexedSort(node)))
+        indexedSort(edge.to) > indexedSort(node)))
   }
 
   def reverse() = {
     val temp = this.adjacencyListForIncomingNodes
-    val nodes =  adjacencyListForIncomingNodes.keys
+    val nodes = adjacencyListForIncomingNodes.keys
     nodes.foreach(node => adjacencyListForIncomingNodes(node) = adjacencyListForOutgoingNodes(node))
     nodes.foreach(node => adjacencyListForOutgoingNodes(node) = temp(node))
   }
@@ -81,6 +145,7 @@ class DirectedGraph[T] extends Graph[T] {
   /**
     * A strongly connected component in a graph is a collection of nodes
     * where every node in the collection is reachable by every other node
+    *
     * @return All the strongly connected components in the graph
     */
   def stronglyConnected: Seq[Seq[Node[T]]] = {

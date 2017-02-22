@@ -141,7 +141,6 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     graph.shortestPath(s, d) should equal(List(s, b, d))
     Seq(Seq(s, b, c), Seq(s, a, c)) should contain(graph.shortestPath(s, c)) // 2 options for shortest path to c
     Seq(Seq(s, b, c, e), Seq(s, a, c, e), Seq(s, b, d, e)) should contain(graph.shortestPath(s, e)) // 3 options for shortest path to e
-
   }
 
   it should "do postorder for directed edges" in {
@@ -222,7 +221,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
     val edgeString = "1,2 2,3 2,4 2,5 3,6 4,5 4,7 5,2 5,6 5,7 6,3 6,8 7,8 7,10 8,7 9,7 10,9 10,11 11,12 12,10"
     val edgePairs = edgeString.split(" ").map(_.split(",")).map(a => (Node(a(0).toInt), Node(a(1).toInt)))
-    edgePairs.foreach(graph.addEdge)
+    edgePairs.foreach(graph.addUnitEdge)
 
     graph.preOrderDfs(Node(12)).map(_.value) should equal(Seq(12, 10, 11, 9, 7, 8))
   }
@@ -236,7 +235,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
     val edgeString = "1,2 2,3 2,4 2,5 3,6 4,5 4,7 5,2 5,6 5,7 6,3 6,8 7,8 7,10 8,7 9,7 10,9 10,11 11,12 12,10"
     val edgePairs = edgeString.split(" ").map(_.split(",")).map(a => (Node(a(0).toInt), Node(a(1).toInt)))
-    edgePairs.foreach(graph.addEdge)
+    edgePairs.foreach(graph.addUnitEdge)
 
     graph.stronglyConnected.map(_.size).sorted.reverse.take(5) should equal(Seq(6, 3, 2, 1))
   }
@@ -247,7 +246,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     nodes.foreach(graph.addNode)
     val edgeString = "1,2 2,3 3,1 3,4 5,4 6,4 8,6 6,7 7,8 4,3 4,6"
     val edgePairs = edgeString.split(" ").map(_.split(",")).map(a => (Node(a(0).toInt), Node(a(1).toInt)))
-    edgePairs.foreach(graph.addEdge)
+    edgePairs.foreach(graph.addUnitEdge)
 
     graph.stronglyConnected.map(_.size).sorted.reverse.take(5) should equal(Seq(7, 1))
   }
@@ -259,7 +258,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     val nodes = (1 to 9).map(Node(_))
     nodes.foreach(graph.addNode)
     val edgePairs = edgeString.split(" ").map(_.split(",")).map(a => (Node(a(0).toInt), Node(a(1).toInt)))
-    edgePairs.foreach(graph.addEdge)
+    edgePairs.foreach(graph.addUnitEdge)
 
     graph.stronglyConnected.map(_.size).sorted.reverse.take(5) should equal(Seq(3, 3, 3))
   }
@@ -432,7 +431,7 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
   }
 
-  it should "be a catty" in {
+  it should "compute strong connected components for another graph with 10 nodes" in {
     val a = Node("a")
     val b = Node("b")
     val c = Node("c")
@@ -454,8 +453,70 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
     components should contain(Seq(a, b, c))
     components should contain(Seq(d, e, f))
     components should contain(Seq(g, h, i, j))
+  }
 
+  it should "compute shortest path between nodes in directed graph where nodes have weighted edges" in {
 
+    /*
+            1      6
+        s - -> v - - > t
+          \    |      ^
+        4  \   | 2   / 3
+            v  v    /
+               w -
+         */
+
+    val s = Node("s")
+    val v = Node("v")
+    val w = Node("w")
+    val t = Node("t")
+
+    val graph = DirectedGraph(s, v, w, t)
+    graph addWeightedEdges(
+      (s, v, 1),
+      (s, w, 4),
+      (v, w, 2),
+      (w, t, 3),
+      (v, t, 6))
+
+    graph.shortestWeightedPath(s, s) should equal((List(s), 0))
+    graph.shortestWeightedPath(s, v) should equal((List(s, v), 1))
+    graph.shortestWeightedPath(s, w) should equal((List(s, v, w), 3))
+    graph.shortestWeightedPath(s, t) should equal((List(s, v, w, t), 6))
+    graph.shortestWeightedPath(t, v) should equal((List(), Int.MaxValue))
+  }
+
+  it should "compute shortest paths too all other nodes  in directed graph where nodes have weighted edges" in {
+
+    /*
+            1      6
+        s - -> v - - > t
+          \    |      ^
+        4  \   | 2   / 3
+            v  v    /
+               w -
+         */
+
+    val s = Node("s")
+    val v = Node("v")
+    val w = Node("w")
+    val t = Node("t")
+
+    val graph = DirectedGraph(s, v, w, t)
+    graph addWeightedEdges(
+      (s, v, 1),
+      (s, w, 4),
+      (v, w, 2),
+      (w, t, 3),
+      (v, t, 6))
+
+    val result = graph.shortestWeightedPathsToAllOtherNodes(s)
+
+    result.size should be (4)
+    result(s) should equal((List(s), 0))
+    result(v) should equal((List(s, v), 1))
+    result(w) should equal((List(s, v, w), 3))
+    result(t) should equal((List(s, v, w, t), 6))
   }
 
 }
