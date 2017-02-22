@@ -512,11 +512,10 @@ class DirectedGraphSuite extends FlatSpec with Matchers {
 
     val result = graph.shortestWeightedPathsToAllOtherNodes(s)
 
-    result.size should be (4)
+    result.size should be(4)
     result(s) should equal((List(s), 0))
     result(v) should equal((List(s, v), 1))
     result(w) should equal((List(s, v, w), 3))
     result(t) should equal((List(s, v, w, t), 6))
   }
-
 }
