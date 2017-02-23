@@ -7,6 +7,10 @@ object Heap {
   def empty[T](implicit ord: Ordering[T]) = new Heap[T]
 }
 
+/**
+  * @param ord
+  * @tparam T
+  */
 class Heap[T] (implicit val ord: Ordering[T]){
 
   private val backing = mutable.ArrayBuffer.empty[T]
@@ -35,10 +39,9 @@ class Heap[T] (implicit val ord: Ordering[T]){
   /**
     * Remove and return the root of the heap (ie the max value)
     *
-    * @param ord
     * @return top of array
     */
-  def popTop()(implicit ord: Ordering[T]): T = {
+  def popTop(): T = {
     if (backing.size == 1) backing.remove(0)
     else {
       val topBeforeRemoval = top
@@ -71,9 +74,7 @@ class Heap[T] (implicit val ord: Ordering[T]){
 
 
   /**
-    *
     * @param insertIndex start from this lower level and keep swapping with parent until heap property satisfied
-    * @param ord
     */
   private def bubbleUpFrom(insertIndex: Int)(implicit ord: Ordering[T]): Unit = {
     val parent = parentIndex(insertIndex)
@@ -87,11 +88,10 @@ class Heap[T] (implicit val ord: Ordering[T]){
   /**
     *
     * @param index bubble down from this index
-    * @param ord
     *
     *              Swap item at this index with the max of its children until heap property is satisfied again
     */
-  private def bubbleDownFrom(index: Int)(implicit ord: Ordering[T]): Unit = {
+  private def bubbleDownFrom(index: Int): Unit = {
     val child = childIndex(index)
     if (child < backing.length) {
 

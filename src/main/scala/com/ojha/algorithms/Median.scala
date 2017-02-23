@@ -4,19 +4,23 @@ import com.ojha.mutable.Heap
 
 object Median {
 
-  def computeMedian(numbers: Seq[Int]): Int = {
+  /**
+    * @param numbers (stream of n numbers)
+    * @return (median(n_1), median(n_1, n_2), ... , median(n_1,...,n_n))
+    */
+  def computeAllMedian(numbers: Seq[Int]): Seq[Int] = {
     val maxHeap = Heap.empty[Int]
     val minHeap = Heap.empty[Int](Ordering[Int].reverse)
 
-    def populatedHeaps(numbers: Seq[Int]): (Heap[Int], Heap[Int]) = {
+    def go(numbers: Seq[Int], result: List[Int]): Seq[Int] = {
       numbers match {
-        case Nil => (maxHeap, minHeap)
-        case n::ns if maxHeap.isEmpty && minHeap.isEmpty => maxHeap.insert(n); populatedHeaps(ns)
+        case Nil => result
+        case n::ns if maxHeap.isEmpty && minHeap.isEmpty => maxHeap.insert(n); go(ns, computeMedian(maxHeap, minHeap) ::result)
         case n::ns if minHeap.isEmpty => {
           val lowerMax = maxHeap.top
           if (n > lowerMax) minHeap.insert(n)
           else { minHeap.insert(maxHeap.popTop()) ; maxHeap.insert(n) }
-          populatedHeaps(ns)
+          go(ns, computeMedian(maxHeap, minHeap) :: result)
         }
         case n::ns => {
           if (maxHeap.top >= n) {
@@ -27,16 +31,24 @@ object Median {
             minHeap.insert(n)
             while (minHeap.size > maxHeap.size + 1) maxHeap.insert(minHeap.popTop())
           }
-          populatedHeaps(ns)
+          go(ns, computeMedian(maxHeap, minHeap) :: result)
         }
       }
     }
-    populatedHeaps(numbers.toList)
-
-    if (maxHeap.size > minHeap.size) maxHeap.top
-    else if (maxHeap.size < minHeap.size) minHeap.top
-    else (maxHeap.top + minHeap.top) / 2
-
+    go(numbers.toList, List.empty).reverse
   }
+
+  /**
+    * @param maxHeap
+    * @param minHeap
+    * @return
+    */
+  private def computeMedian(maxHeap: Heap[Int], minHeap: Heap[Int]): Int = {
+    if (maxHeap.size == minHeap.size) maxHeap.top
+    else if (minHeap.size > maxHeap.size) minHeap.top
+    else maxHeap.top
+  }
+
+  def computeMedian(numbers: Seq[Int]): Int = computeAllMedian(numbers).last
 
 }
