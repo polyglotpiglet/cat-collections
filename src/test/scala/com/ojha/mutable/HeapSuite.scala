@@ -97,8 +97,10 @@ class HeapSuite extends FlatSpec with Matchers {
     sut.popTop should be(1)
   }
 
-
-
-
+  it should "pretty print heap" in {
+    val sut = new Heap[Int]
+    sut.insert(2)
+    sut.print should equal("2")
+  }
 
 }

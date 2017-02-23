@@ -11,6 +11,12 @@ class Heap[T] (implicit val ord: Ordering[T]){
 
   private val backing = mutable.ArrayBuffer.empty[T]
 
+  def size: Int = backing.size
+
+  def isEmpty: Boolean = backing.isEmpty
+
+  def nonEmpty: Boolean = backing.nonEmpty
+
   /**
     * Insert an item into the heap
     * Inserts to any leaf, then bubbles up such that heap remains sorted
@@ -161,5 +167,9 @@ class Heap[T] (implicit val ord: Ordering[T]){
       case None =>
     }
   }
+
+  def print: String = backing.mkString(",")
+
+
 
 }
