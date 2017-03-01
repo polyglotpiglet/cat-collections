@@ -14,4 +14,16 @@ class RedBlackTreeSuite extends FlatSpec with Matchers {
     tree.isEmpty should be(true)
   }
 
+  it should "insert one element" in {
+    val tree = RedBlackTree.empty[Int]
+    tree.insert(5)
+    tree.isEmpty should be(false)
+    tree.size should be(1)
+  }
+
+  it should "do inorder traversal " in {
+//    RedBlackTree.of(5,2).inOrder should contain inOrder (2,5)
+    RedBlackTree.of(2,5).inOrder should contain inOrder (2,5)
+  }
+
 }

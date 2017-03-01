@@ -8,6 +8,4 @@ trait Tree[T] {
 
   def isEmpty: Boolean
 
-  def insert(value: T)
-
 }

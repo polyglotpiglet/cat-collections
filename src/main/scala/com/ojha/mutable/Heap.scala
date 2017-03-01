@@ -13,9 +13,6 @@ object Heap {
   */
 class Heap[T] (implicit val ord: Ordering[T]) extends ArrayBackedTree[T] {
 
-
-
-
   /**
     * Insert an item into the heap
     * Inserts to any leaf, then bubbles up such that heap remains sorted
