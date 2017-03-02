@@ -1,11 +1,5 @@
 package com.ojha.mutable.trees
 
-import com.ojha.mutable.ArrayBackedTree
-import com.ojha.mutable.graphs.Node
-
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
-
 /**
   *
   * A red black tree is a beautiful thing.
@@ -70,7 +64,7 @@ abstract class Node[T](val value: T) {
   }
 
   def withRight(right: Node[T]): Node[T] = {
-    this.right= Some(right)
+    this.right = Some(right)
     this
   }
 
@@ -85,34 +79,25 @@ abstract class Node[T](val value: T) {
   }
 
   def asBlack: Node[T]
+
   def asRed: Node[T]
 }
 
 case class Red[T](override val value: T) extends Node[T](value) {
+
   override def asBlack: Node[T] = Black(value).withLeft(this.left).withRight(this.right)
 
   override def asRed: Node[T] = this
+
 }
+
 case class Black[T](override val value: T) extends Node[T](value) {
+
   override def asBlack: Node[T] = this
 
   override def asRed: Node[T] = Red(value).withLeft(this.left).withRight(this.right)
-}
 
-//abstract class Node[T](val value: T, val left: Option[Node[T]] = None, val right: Option[Node[T]] = None) {
-//  def asBlack: Node[T]
-//  def redBlack: Node[T]
-//}
-//
-//case class Red[T](override val value: T, override val left: Option[Node[T]] = None, override val right: Option[Node[T]] = None) extends Node[T](value, left, right) {
-//  override def asBlack: Node[T] = Black(value, left, right)
-//  override def redBlack: Node[T] = this
-//}
-//
-//case class Black[T](override val value: T, override val left: Option[Node[T]] = None, override val right: Option[Node[T]] = None) extends Node[T](value, left, right) {
-//  override def asBlack: Node[T] = this
-//  override def redBlack: Node[T] = Red(value, left, right)
-//}
+}
 
 /**
   * @param ord
@@ -123,6 +108,7 @@ class RedBlackTree[T](implicit ord: Ordering[T]) extends Tree[T] {
   private var root: Option[Node[T]] = None
 
   private var currentSize = 0
+
   override def size: Int = currentSize
 
   override def nonEmpty: Boolean = root.isDefined
@@ -132,11 +118,12 @@ class RedBlackTree[T](implicit ord: Ordering[T]) extends Tree[T] {
   /**
     * If we are inserting the root then make it black (one of the red black tree invariants is that the root must be black)
     * If we are inserting an element other than the root then it gets a little more interesting... (see comments for nonRootInsert)
+    *
     * @param value value to insert
     */
   def insert(value: T): Unit = root match {
     case None => root = Some(Black(value)); currentSize += 1
-    case Some(_) => nonRootInsert(value, root, None, List.empty) ; currentSize += 1
+    case Some(_) => nonRootInsert(value, root, None, List.empty); currentSize += 1
   }
 
   /**
@@ -148,14 +135,14 @@ class RedBlackTree[T](implicit ord: Ordering[T]) extends Tree[T] {
     *
     * Our resurrectInvariants method handles this... (so go look there for the next step)
     *
-    * @param value new value to insert into tree
+    * @param value   new value to insert into tree
     * @param current node we are looking at (if this node isnt defined then we can insert here)
-    * @param parent parent of current node
+    * @param parent  parent of current node
     */
   private def nonRootInsert(value: T, current: Option[Node[T]], parent: Option[Node[T]], routeToNode: List[Node[T]]): Unit = (current, parent) match {
     case (None, Some(p)) if ord.gt(p.value, value) => {
       p.left = Some(Red(value))
-      resurrectInvariants(p.left.get +: routeToNode )
+      resurrectInvariants(p.left.get +: routeToNode)
     };
     case (None, Some(p)) if ord.lt(p.value, value) => {
       p.right = Some(Red(value))
@@ -189,7 +176,7 @@ class RedBlackTree[T](implicit ord: Ordering[T]) extends Tree[T] {
       if (ns.nonEmpty) {
         val n4 = ns.head
 
-        // set n3 = red
+        // set n3 = red (we do the n3 parent check because we dont set it to red if it is the root because INVARIANTS!)
         n4.left.filter(_.value == n3.value).foreach(l => n4.left = Some(l.asRed))
         n4.right.filter(_.value == n3.value).foreach(r => n4.right = Some(r.asRed))
 
