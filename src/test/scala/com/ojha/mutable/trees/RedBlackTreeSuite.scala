@@ -22,8 +22,9 @@ class RedBlackTreeSuite extends FlatSpec with Matchers {
   }
 
   it should "do inorder traversal " in {
-//    RedBlackTree.of(5,2).inOrder should contain inOrder (2,5)
+    RedBlackTree.of(5,2).inOrder should contain inOrder (2,5)
     RedBlackTree.of(2,5).inOrder should contain inOrder (2,5)
+    RedBlackTree.of(2,5,1,7,6,4,3).inOrder should contain inOrder (1,2,3,4,5,6,7)
   }
 
 }
