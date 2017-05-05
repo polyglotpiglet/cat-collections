@@ -26,8 +26,9 @@ object CatList {
   def foldRight[A,B](as: CatList[A], b: B, f: (A,B) => B): B = as match {
     case Nil => b
     case Cons(h,t) => f(h, foldRight(t, b, f))
-
   }
+
+  @tailrec
   def foldLeft[A, B](as: CatList[A], b: B, f: (B,A) => B): B = as match {
     case Nil => b
     case Cons(h,t) => foldLeft(t, f(b,h), f)
@@ -56,6 +57,18 @@ object CatList {
     case Cons(_, t) => t
   }
 
+  def filter[A](as: CatList[A], f: A => Boolean): CatList[A] = as match {
+    case Nil => Nil
+    case Cons(h, t) if f(h) => Cons(h, filter(t, f))
+    case Cons(_, t) => filter(t, f)
+  }
+
+  def zipWith[A,B,C](as: CatList[A], bs: CatList[B], f: (A,B) => C): CatList[C] = (as,bs) match {
+    case (Nil, Nil) => Nil
+    case (Nil, _) => throw new RuntimeException("zippy lists must be the same length")
+    case (_, Nil) => throw new RuntimeException("zippy lists must be the same length")
+    case (Cons(ha, ta), Cons(hb, tb)) => Cons(f(ha, hb), zipWith(ta, tb, f))
+  }
 
   def apply[A](as: A*): CatList[A] = {
     if (as.isEmpty) Nil

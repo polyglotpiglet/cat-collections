@@ -43,4 +43,12 @@ class CatListSuite extends FlatSpec with Matchers {
     CatList.flatMap[Int, Int](CatList(1, 2), i => CatList(i, i)) should be(CatList(1, 1, 2, 2))
   }
 
+  it should "filter" in {
+    CatList.filter[Int](CatList(1, 2, 3, 4, 1, 0, 5), _ > 1) should be(CatList(2, 3, 4, 5))
+  }
+
+  it should "zipwith" in {
+    CatList.zipWith[Int, Int, Int](CatList(1, 2), CatList(3, 4), _ + _) should be(CatList(4, 6))
+  }
+
 }
