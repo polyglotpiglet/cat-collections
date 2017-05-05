@@ -2,82 +2,60 @@ package com.ojha.immutable
 
 import scala.annotation.tailrec
 
-sealed trait CatList[+A] {
-  def tail: CatList[A]
-  def drop(n: Int): CatList[A]
-  def size: Int
-  def dropWhile(f: A => Boolean): CatList[A]
-  def foldRight[B](b: B, f: (A,B) => B): B
-  def foldLeft[B](b: B, f: (B,A) => B): B
-  def map[B](f: A => B): CatList[B]
-  def flatMap[B](f: A => CatList[B]): CatList[B]
-  def init: CatList[A]
-}
-case object Nil extends CatList[Nothing] {
-  override def tail: CatList[Nothing] = throw new RuntimeException("Tail of an empty CatList!")
-
-  override def drop(n: Int): CatList[Nothing] = {
-    if (n == 0) Nil
-    else throw new RuntimeException("Can't drop from empty list!")
-  }
-
-  override def size: Int = 0
-
-  override def init = throw new RuntimeException("Init of an empty CatList!")
-
-  override def dropWhile(f: (Nothing) => Boolean) = Nil
-
-  override def foldRight[B](b: B, f: (Nothing, B) => B): B = b
-
-  override def foldLeft[B](b: B, f: (B, Nothing) => B): B = b
-
-  override def map[B](f: (Nothing) => B): CatList[B] = Nil
-
-  override def flatMap[B](f: (Nothing) => CatList[B]): CatList[B] = Nil
-}
-case class Cons[+A](head: A, tail: CatList[A]) extends CatList[A] {
-  override def drop(n: Int): CatList[A] = {
-    if (n == 0) this
-    else tail.drop(n-1)
-  }
-
-  override def size: Int = foldRight[Int](0, (_,b) => b + 1)
-
-  override def init: CatList[A] = {
-    def aux(l: CatList[A], acc: CatList[A]): CatList[A] = l match {
-      case Cons(_, Nil) => acc
-      case Cons(h, t) => aux(t, Cons(h, acc))
-    }
-    aux(this, Nil)
-  }
-
-  override def dropWhile(f: A => Boolean): CatList[A] = {
-    if (f(head)) tail.dropWhile(f)
-    else this
-  }
-
-  override def foldRight[B](b: B, f: (A, B) => B): B = {
-    foldLeft[B](b, (b,a) => f(a,b))
-    //    tail.foldRight(f(head, b), f) // naughty non safe
-  }
-
-  override def foldLeft[B](b: B, f: (B, A) => B): B = {
-    @tailrec
-    def aux(ls: CatList[A], b: B, res: CatList[A] = Nil): B = ls match {
-      case Nil => b
-      case Cons(h, ts) => aux(ts, f(b, h), Cons(h, res))
-    }
-    aux(this, b)
-  }
-
-  override def map[B](f: (A) => B): CatList[B] = {
-    Cons(f(head), tail.map(f))
-  }
-
-  override def flatMap[B](f: (A) => CatList[B]): CatList[B] = ???
-}
+sealed trait CatList[+A]
+case object Nil extends CatList[Nothing]
+case class Cons[+A](head: A, tail: CatList[A]) extends CatList[A]
 
 object CatList {
+
+  def drop[A](as: CatList[A], n: Int): CatList[A] = as match {
+    case _ if n == 0 => as
+    case Nil => throw new RuntimeException
+    case Cons(_, t) => drop(t, n- 1)
+  }
+
+  def size[A](as: CatList[A]): Int = as match {
+    case Nil => 0
+    case Cons(_, t) => 1 + size(t)
+  }
+
+  def dropWhile[A](as: CatList[A], f: A => Boolean): CatList[A] = as match {
+    case Nil => Nil
+    case Cons(h, t) => if (f(h)) dropWhile(t, f) else as
+  }
+  def foldRight[A,B](as: CatList[A], b: B, f: (A,B) => B): B = as match {
+    case Nil => b
+    case Cons(h,t) => f(h, foldRight(t, b, f))
+
+  }
+  def foldLeft[A, B](as: CatList[A], b: B, f: (B,A) => B): B = as match {
+    case Nil => b
+    case Cons(h,t) => foldLeft(t, f(b,h), f)
+  }
+
+  def map[A, B](as: CatList[A], f: A => B): CatList[B] = as match {
+    case Nil => Nil
+    case Cons(h, t) => Cons(f(h), map(t, f))
+  }
+
+  def flatMap[A, B](as: CatList[A], f: A => CatList[B]): CatList[B] = {
+    foldLeft(as, Nil:CatList[B], (b:CatList[B], a: A) => append[B](b, f(a)))
+  }
+
+  def init[A](as: CatList[A]): CatList[A] = as match {
+    case Nil => throw new RuntimeException
+    case Cons(_, Nil) => Nil
+    case Cons(h, t) => Cons(h, init(t))
+  }
+  def append[A](as: CatList[A], bs: CatList[A]): CatList[A] = {
+    foldRight[A, CatList[A]](as, bs, Cons[A])
+  }
+
+  def tail[A](as: CatList[A]): CatList[A] = as match {
+    case Nil => throw new RuntimeException("tail of empty list")
+    case Cons(_, t) => t
+  }
+
 
   def apply[A](as: A*): CatList[A] = {
     if (as.isEmpty) Nil
