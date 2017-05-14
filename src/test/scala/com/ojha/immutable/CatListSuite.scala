@@ -51,4 +51,11 @@ class CatListSuite extends FlatSpec with Matchers {
     CatList.zipWith[Int, Int, Int](CatList(1, 2), CatList(3, 4), _ + _) should be(CatList(4, 6))
   }
 
+  it should "report if a sublist is contained in a list" in {
+    CatList.hasSubsequence(CatList(1,2), CatList(1)) should be (true)
+    CatList.hasSubsequence(CatList(1,2), CatList(1,2)) should be (true)
+    CatList.hasSubsequence(CatList(1,2), CatList(1,2,3)) should be (false)
+    CatList.hasSubsequence(CatList(1,1,1,2,3), CatList(1,2)) should be (true)
+  }
+
 }

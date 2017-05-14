@@ -70,6 +70,13 @@ object CatList {
     case (Cons(ha, ta), Cons(hb, tb)) => Cons(f(ha, hb), zipWith(ta, tb, f))
   }
 
+  def hasSubsequence[A](as: CatList[A], ls: CatList[A]): Boolean = (as, ls) match {
+        case (_, Nil) => true
+        case (Nil, _) => false
+        case (Cons(h1, t1), Cons(h2, t2)) if h1 == h2 => hasSubsequence(t1, t2) || hasSubsequence(t1, ls)
+        case (Cons(_, t1), _) => hasSubsequence(t1, ls)
+  }
+
   def apply[A](as: A*): CatList[A] = {
     if (as.isEmpty) Nil
     else Cons(as.head, apply(as.tail: _*))
